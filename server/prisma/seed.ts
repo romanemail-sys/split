@@ -23,4 +23,6 @@ async function main() {
   console.log('Seeded categories');
 }
 
-main().finally(() => prisma.$disconnect());
+main()
+  .catch((e) => { console.error(e); process.exit(1); })
+  .finally(() => prisma.$disconnect());

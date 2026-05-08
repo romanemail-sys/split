@@ -16,8 +16,8 @@ model User {
   avatarUrl            String?
   defaultCurrency      String    @default("ILS")
   emailVerified        Boolean   @default(false)
-  verifyEmailToken     String?
-  resetPasswordToken   String?
+  verifyEmailToken     String?   @unique
+  resetPasswordToken   String?   @unique
   resetPasswordExpiry  DateTime?
   createdAt            DateTime  @default(now())
 
@@ -94,6 +94,10 @@ model Expense {
   paidBy         User           @relation("ExpensePaidBy", fields: [paidById], references: [id])
   category       Category?      @relation(fields: [categoryId], references: [id])
   splits         ExpenseSplit[]
+
+  @@index([groupId])
+  @@index([paidById])
+  @@index([groupId, date])
 }
 
 enum SplitType {
@@ -113,6 +117,10 @@ model ExpenseSplit {
 
   expense    Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
   user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([expenseId, userId])
+  @@index([userId])
+  @@index([userId, isSettled])
 }
 
 model Settlement {
@@ -128,6 +136,10 @@ model Settlement {
   group      Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
   fromUser   User  @relation("SettlementFrom", fields: [fromUserId], references: [id])
   toUser     User  @relation("SettlementTo", fields: [toUserId], references: [id])
+
+  @@index([groupId])
+  @@index([fromUserId])
+  @@index([toUserId])
 }
 
 model Notification {
@@ -141,6 +153,9 @@ model Notification {
   createdAt DateTime         @default(now())
 
   user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
 }
 
 enum NotificationType {
