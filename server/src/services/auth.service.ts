@@ -1,6 +1,9 @@
 import bcrypt from 'bcrypt';
-import { PrismaClient } from '@prisma/client';
+import type { User as PrismaUser } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from './token.service';
+
+const BCRYPT_ROUNDS = 12;
 
 interface RegisterRequest {
   name: string;
@@ -26,9 +29,7 @@ interface AuthResponse {
   accessToken: string;
 }
 
-const prisma = new PrismaClient();
-
-function toUserDTO(user: { id: string; name: string; email: string; avatarUrl: string | null; defaultCurrency: string; emailVerified: boolean; createdAt: Date }) {
+function toUserDTO(user: PrismaUser) {
   return {
     id: user.id,
     name: user.name,
@@ -44,7 +45,9 @@ export async function register(data: RegisterRequest): Promise<AuthResponse & { 
   const existing = await prisma.user.findUnique({ where: { email: data.email } });
   if (existing) throw new Error('EMAIL_IN_USE');
 
-  const passwordHash = await bcrypt.hash(data.password, 12);
+  if (!data.password || data.password.length < 6) throw new Error('WEAK_PASSWORD');
+
+  const passwordHash = await bcrypt.hash(data.password, BCRYPT_ROUNDS);
   const user = await prisma.user.create({
     data: { name: data.name, email: data.email, passwordHash },
   });
@@ -74,6 +77,7 @@ export async function refreshAccessToken(token: string): Promise<{ accessToken: 
 }
 
 export async function getMe(userId: string) {
-  const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw new Error('USER_NOT_FOUND');
   return toUserDTO(user);
 }

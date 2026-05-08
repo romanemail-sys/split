@@ -27,9 +27,9 @@ describe('auth.service', () => {
     });
 
     it('throws if email already registered', async () => {
-      await register({ name: 'A', email: 'test2@test.split', password: 'pass' });
+      await register({ name: 'A', email: 'test2@test.split', password: 'password' });
       await expect(
-        register({ name: 'B', email: 'test2@test.split', password: 'pass' })
+        register({ name: 'B', email: 'test2@test.split', password: 'password' })
       ).rejects.toThrow('EMAIL_IN_USE');
     });
   });
