@@ -24,6 +24,14 @@
     "passport-google-oauth20": "^2.0.0",
     "zod": "^3.23.8"
   },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "setupFiles": ["dotenv/config"],
+    "moduleNameMapper": {
+      "@split/shared": "<rootDir>/../../shared/src/index.ts"
+    }
+  },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.7",
