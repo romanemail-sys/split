@@ -4,5 +4,6 @@ export interface User {
   email: string;
   avatarUrl: string | null;
   defaultCurrency: string;
+  emailVerified: boolean;
   createdAt: string;
 }
