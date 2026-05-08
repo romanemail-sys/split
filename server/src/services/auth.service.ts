@@ -1,0 +1,79 @@
+import bcrypt from 'bcrypt';
+import { PrismaClient } from '@prisma/client';
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from './token.service';
+
+interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+}
+
+interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+interface AuthResponse {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    avatarUrl: string | null;
+    defaultCurrency: string;
+    emailVerified: boolean;
+    createdAt: string;
+  };
+  accessToken: string;
+}
+
+const prisma = new PrismaClient();
+
+function toUserDTO(user: { id: string; name: string; email: string; avatarUrl: string | null; defaultCurrency: string; emailVerified: boolean; createdAt: Date }) {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    avatarUrl: user.avatarUrl,
+    defaultCurrency: user.defaultCurrency,
+    emailVerified: user.emailVerified,
+    createdAt: user.createdAt.toISOString(),
+  };
+}
+
+export async function register(data: RegisterRequest): Promise<AuthResponse & { refreshToken: string }> {
+  const existing = await prisma.user.findUnique({ where: { email: data.email } });
+  if (existing) throw new Error('EMAIL_IN_USE');
+
+  const passwordHash = await bcrypt.hash(data.password, 12);
+  const user = await prisma.user.create({
+    data: { name: data.name, email: data.email, passwordHash },
+  });
+
+  const accessToken = generateAccessToken(user.id);
+  const refreshToken = generateRefreshToken(user.id);
+  return { user: toUserDTO(user), accessToken, refreshToken };
+}
+
+export async function login(data: LoginRequest): Promise<AuthResponse & { refreshToken: string }> {
+  const user = await prisma.user.findUnique({ where: { email: data.email } });
+  if (!user || !user.passwordHash) throw new Error('INVALID_CREDENTIALS');
+
+  const valid = await bcrypt.compare(data.password, user.passwordHash);
+  if (!valid) throw new Error('INVALID_CREDENTIALS');
+
+  const accessToken = generateAccessToken(user.id);
+  const refreshToken = generateRefreshToken(user.id);
+  return { user: toUserDTO(user), accessToken, refreshToken };
+}
+
+export async function refreshAccessToken(token: string): Promise<{ accessToken: string }> {
+  const payload = verifyRefreshToken(token);
+  const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+  if (!user) throw new Error('USER_NOT_FOUND');
+  return { accessToken: generateAccessToken(user.id) };
+}
+
+export async function getMe(userId: string) {
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
+  return toUserDTO(user);
+}
