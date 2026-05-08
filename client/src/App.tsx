@@ -28,7 +28,15 @@ export default function App() {
           <Route path="analytics" element={<div className="text-slate-400">Analytics — Plan 4</div>} />
           <Route path="notifications" element={<div className="text-slate-400">Notifications — Plan 4</div>} />
         </Route>
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={
+  <div className="min-h-screen flex items-center justify-center bg-slate-900">
+    <div className="text-center">
+      <h1 className="text-4xl font-bold mb-2">404</h1>
+      <p className="text-slate-400 mb-4">הדף לא נמצא</p>
+      <a href="/dashboard" className="text-blue-400 hover:underline">חזרה הביתה</a>
+    </div>
+  </div>
+} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { useRegister } from '../../hooks/useAuth';
 
 export default function RegisterPage() {
@@ -18,8 +19,7 @@ export default function RegisterPage() {
   }
 
   const errorMsg = (() => {
-    const err = register.error as { response?: { data?: { error?: { code?: string } } } } | null;
-    if (err?.response?.data?.error?.code === 'EMAIL_IN_USE') return 'האימייל כבר רשום במערכת';
+    if (axios.isAxiosError(register.error) && register.error.response?.data?.error?.code === 'EMAIL_IN_USE') return 'האימייל כבר רשום במערכת';
     if (register.isError) return 'שגיאה בהרשמה, נסה שוב';
     return null;
   })();
