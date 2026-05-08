@@ -1,4 +1,5 @@
-import jwt, { SignOptions } from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
+import { SignOptions } from 'jsonwebtoken';
 import { config } from '../config';
 
 interface TokenPayload {
