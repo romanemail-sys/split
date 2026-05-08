@@ -2,7 +2,8 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { validate } from '../middleware/validate';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
-import { register, login, refreshAccessToken, getMe } from '../services/auth.service';
+import { register, login, refreshAccessToken, getMe, forgotPassword, resetPassword, verifyEmail } from '../services/auth.service';
+import { config } from '../config';
 
 const router = Router();
 
@@ -16,6 +17,9 @@ const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
 });
+
+const forgotSchema = z.object({ email: z.string().email() });
+const resetSchema = z.object({ token: z.string(), password: z.string().min(6) });
 
 function setRefreshCookie(res: Response, token: string): void {
   res.cookie('refreshToken', token, {
@@ -79,6 +83,38 @@ router.get('/me', requireAuth, async (req: Request, res: Response) => {
     res.json(user);
   } catch {
     res.status(404).json({ error: { code: 'NOT_FOUND', message: 'User not found' } });
+  }
+});
+
+router.post('/forgot-password', validate(forgotSchema), async (req: Request, res: Response) => {
+  await forgotPassword(req.body.email).catch(() => {});
+  res.json({ success: true });
+});
+
+router.post('/reset-password', validate(resetSchema), async (req: Request, res: Response) => {
+  try {
+    await resetPassword(req.body.token, req.body.password);
+    res.json({ success: true });
+  } catch (err: unknown) {
+    if (err instanceof Error && err.message === 'INVALID_OR_EXPIRED_TOKEN') {
+      res.status(400).json({ error: { code: 'INVALID_OR_EXPIRED_TOKEN', message: 'Token invalid or expired' } });
+      return;
+    }
+    res.status(500).json({ error: { code: 'INTERNAL', message: 'Server error' } });
+  }
+});
+
+router.get('/verify-email', async (req: Request, res: Response) => {
+  const token = req.query.token as string;
+  if (!token) {
+    res.status(400).json({ error: { code: 'MISSING_TOKEN', message: 'Token required' } });
+    return;
+  }
+  try {
+    await verifyEmail(token);
+    res.redirect(`${config.CLIENT_URL}/login?verified=1`);
+  } catch {
+    res.redirect(`${config.CLIENT_URL}/login?error=invalid_token`);
   }
 });
 

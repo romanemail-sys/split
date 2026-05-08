@@ -1,7 +1,9 @@
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import type { User as PrismaUser } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from './token.service';
+import { sendVerificationEmail, sendPasswordResetEmail } from './email.service';
 
 const BCRYPT_ROUNDS = 12;
 
@@ -80,4 +82,52 @@ export async function getMe(userId: string) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new Error('USER_NOT_FOUND');
   return toUserDTO(user);
+}
+
+export async function forgotPassword(email: string): Promise<void> {
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return; // silent — don't reveal whether email exists
+
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { resetPasswordToken: token, resetPasswordExpiry: expiry },
+  });
+
+  await sendPasswordResetEmail(email, token);
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+  const user = await prisma.user.findFirst({
+    where: {
+      resetPasswordToken: token,
+      resetPasswordExpiry: { gt: new Date() },
+    },
+  });
+  if (!user) throw new Error('INVALID_OR_EXPIRED_TOKEN');
+
+  const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash, resetPasswordToken: null, resetPasswordExpiry: null },
+  });
+}
+
+export async function sendEmailVerification(userId: string): Promise<void> {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw new Error('USER_NOT_FOUND');
+  const token = crypto.randomBytes(32).toString('hex');
+  await prisma.user.update({ where: { id: userId }, data: { verifyEmailToken: token } });
+  await sendVerificationEmail(user.email, token);
+}
+
+export async function verifyEmail(token: string): Promise<void> {
+  const user = await prisma.user.findFirst({ where: { verifyEmailToken: token } });
+  if (!user) throw new Error('INVALID_TOKEN');
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { emailVerified: true, verifyEmailToken: null },
+  });
 }
