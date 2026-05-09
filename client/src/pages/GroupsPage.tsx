@@ -1,14 +1,14 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGroups, useCreateGroup } from '../hooks/useGroups';
 import { GroupCard } from '../components/GroupCard';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from '../components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
 
 export function GroupsPage() {
+  const { t } = useTranslation();
   const { data: groups, isLoading } = useGroups();
   const createGroup = useCreateGroup();
   const [open, setOpen] = useState(false);
@@ -27,23 +27,23 @@ export function GroupsPage() {
       setDescription('');
       setCurrency('USD');
     } catch {
-      setError('Failed to create group. Please try again.');
+      setError(t('groups.failed'));
     }
   }
 
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Groups</h1>
-        <Button onClick={() => setOpen(true)}>New Group</Button>
+        <h1 className="text-2xl font-bold text-slate-900">{t('groups.title')}</h1>
+        <Button onClick={() => setOpen(true)}>{t('groups.newGroup')}</Button>
       </div>
 
       {isLoading ? (
-        <div className="text-center py-12 text-muted-foreground">Loading groups…</div>
+        <div className="text-center py-12 text-slate-400">{t('groups.loading')}</div>
       ) : groups?.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <p className="mb-4">No groups yet. Create one to start splitting expenses.</p>
-          <Button onClick={() => setOpen(true)}>Create your first group</Button>
+        <div className="text-center py-12 text-slate-400">
+          <p className="mb-4">{t('groups.noGroups')}</p>
+          <Button onClick={() => setOpen(true)}>{t('groups.createFirst')}</Button>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -54,26 +54,26 @@ export function GroupsPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create Group</DialogTitle>
+            <DialogTitle>{t('groups.createGroup')}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleCreate} className="space-y-4">
             <div className="space-y-1">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('groups.name')}</Label>
               <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="description">Description (optional)</Label>
+              <Label htmlFor="description">{t('groups.description')}</Label>
               <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="currency">Default Currency</Label>
+              <Label htmlFor="currency">{t('groups.defaultCurrency')}</Label>
               <Input id="currency" value={currency} onChange={(e) => setCurrency(e.target.value.toUpperCase())} maxLength={3} />
             </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            {error && <p className="text-sm text-red-600">{error}</p>}
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>{t('groups.cancel')}</Button>
               <Button type="submit" disabled={createGroup.isPending}>
-                {createGroup.isPending ? 'Creating…' : 'Create'}
+                {createGroup.isPending ? t('groups.creating') : t('groups.create')}
               </Button>
             </DialogFooter>
           </form>
