@@ -5,6 +5,7 @@ import passport from 'passport';
 import { config } from './config';
 import authRouter from './routes/auth';
 import oauthRouter from './routes/oauth';
+import groupsRouter from './routes/groups';
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(passport.initialize());
 
 app.use('/api/auth', authRouter);
 app.use('/api/auth', oauthRouter);
+app.use('/api/groups', groupsRouter);
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
