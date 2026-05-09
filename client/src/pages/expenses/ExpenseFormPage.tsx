@@ -8,6 +8,7 @@ import { SplitEditor } from '../../components/expense/SplitEditor';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
+import { CurrencySelect } from '../../components/CurrencySelect';
 import type { SplitType, SplitInput } from '@split/shared';
 
 const SPLIT_TYPES: SplitType[] = ['EQUAL', 'EXACT', 'PERCENTAGE', 'SHARES'];
@@ -94,9 +95,9 @@ export function ExpenseFormPage() {
             <Label htmlFor="amount">{t('expense.amount')}</Label>
             <Input id="amount" type="number" min="0.01" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required />
           </div>
-          <div className="space-y-1 w-28">
+          <div className="space-y-1 w-52">
             <Label htmlFor="currency">{t('expense.currency')}</Label>
-            <Input id="currency" value={currency} onChange={(e) => setCurrency(e.target.value.toUpperCase())} maxLength={3} />
+            <CurrencySelect id="currency" value={currency} onChange={setCurrency} />
           </div>
         </div>
         <div className="space-y-1">

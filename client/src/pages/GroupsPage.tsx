@@ -6,6 +6,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
+import { CurrencySelect } from '../components/CurrencySelect';
 
 export function GroupsPage() {
   const { t } = useTranslation();
@@ -67,7 +68,7 @@ export function GroupsPage() {
             </div>
             <div className="space-y-1">
               <Label htmlFor="currency">{t('groups.defaultCurrency')}</Label>
-              <Input id="currency" value={currency} onChange={(e) => setCurrency(e.target.value.toUpperCase())} maxLength={3} />
+              <CurrencySelect id="currency" value={currency} onChange={setCurrency} />
             </div>
             {error && <p className="text-sm text-red-600">{error}</p>}
             <DialogFooter>
