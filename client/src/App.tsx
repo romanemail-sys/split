@@ -7,6 +7,7 @@ import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import OAuthCallbackPage from './pages/auth/OAuthCallbackPage';
 import DashboardPage from './pages/DashboardPage';
+import { GroupsPage } from './pages/GroupsPage';
 
 export default function App() {
   return (
@@ -27,7 +28,7 @@ export default function App() {
         >
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="groups" element={<div className="text-slate-400">Groups — Plan 2</div>} />
+          <Route path="groups" element={<GroupsPage />} />
           <Route path="expenses" element={<div className="text-slate-400">Expenses — Plan 2</div>} />
           <Route path="analytics" element={<div className="text-slate-400">Analytics — Plan 4</div>} />
           <Route path="notifications" element={<div className="text-slate-400">Notifications — Plan 4</div>} />
