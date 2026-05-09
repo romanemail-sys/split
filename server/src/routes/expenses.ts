@@ -15,9 +15,9 @@ function userId(req: Request): string {
 
 const splitInputSchema = z.object({
   userId: z.string(),
-  amount: z.number().positive().optional(),
-  percentage: z.number().positive().optional(),
-  shares: z.number().positive().optional(),
+  amount: z.number().min(0).optional(),
+  percentage: z.number().min(0).optional(),
+  shares: z.number().min(0).optional(),
 });
 
 const createExpenseSchema = z.object({
