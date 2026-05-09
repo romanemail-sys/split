@@ -8,6 +8,8 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
+import { CurrencySelect } from '../components/CurrencySelect';
+import { useCurrencyRate } from '../hooks/useCurrencyRate';
 
 type Tab = 'expenses' | 'members' | 'balances';
 
@@ -31,6 +33,7 @@ export function GroupDetailPage() {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteError, setInviteError] = useState('');
+  const [viewCurrency, setViewCurrency] = useState('');
 
   async function handleInvite(e: React.FormEvent) {
     e.preventDefault();
@@ -43,6 +46,12 @@ export function GroupDetailPage() {
       setInviteError(t('groupDetail.inviteFailed'));
     }
   }
+
+  useEffect(() => {
+    if (group && !viewCurrency) setViewCurrency(group.defaultCurrency);
+  }, [group, viewCurrency]);
+
+  const { data: convRate } = useCurrencyRate(group?.defaultCurrency ?? '', viewCurrency);
 
   if (isLoading) return <div className="p-6 text-slate-400">{t('groupDetail.loading')}</div>;
   if (!group) return <div className="p-6 text-red-600">{t('groupDetail.notFound')}</div>;
@@ -170,18 +179,34 @@ export function GroupDetailPage() {
 
       {tab === 'balances' && (
         <div>
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-sm text-slate-500">{t('groupDetail.viewIn')}</span>
+            <div className="w-52">
+              <CurrencySelect value={viewCurrency} onChange={setViewCurrency} />
+            </div>
+          </div>
           {!balances?.length ? (
             <p className="text-center text-slate-400 py-8">{t('groupDetail.noBalances')}</p>
           ) : (
             <div className="space-y-2">
-              {balances.map((b) => (
-                <div key={b.userId} className="flex items-center justify-between p-3 rounded-lg border border-slate-200">
-                  <p className="font-medium text-slate-900">{b.name}</p>
-                  <span className={`font-semibold ${b.balance > 0 ? 'text-income' : b.balance < 0 ? 'text-expense' : 'text-slate-500'}`}>
-                    {formatBalance(b.balance, group.defaultCurrency)}
-                  </span>
-                </div>
-              ))}
+              {balances.map((b) => {
+                const rate = convRate?.rate ?? 1;
+                const converted = b.balance * rate;
+                const displayCurrency = viewCurrency || group.defaultCurrency;
+                return (
+                  <div key={b.userId} className="flex items-center justify-between p-3 rounded-lg border border-slate-200">
+                    <p className="font-medium text-slate-900">{b.name}</p>
+                    <div className="text-end">
+                      <span className={`font-semibold ${converted > 0 ? 'text-income' : converted < 0 ? 'text-expense' : 'text-slate-500'}`}>
+                        {formatBalance(converted, displayCurrency)}
+                      </span>
+                      {viewCurrency && viewCurrency !== group.defaultCurrency && (
+                        <p className="text-xs text-slate-400">{formatBalance(b.balance, group.defaultCurrency)}</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

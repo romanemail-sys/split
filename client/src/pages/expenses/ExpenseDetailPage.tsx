@@ -4,6 +4,7 @@ import { useExpense, useDeleteExpense } from '../../hooks/useExpenses';
 import { useAuthStore } from '../../stores/auth.store';
 import { useGroup } from '../../hooks/useGroups';
 import { Button } from '../../components/ui/button';
+import { useCurrencyRate } from '../../hooks/useCurrencyRate';
 
 export function ExpenseDetailPage() {
   const { t } = useTranslation();
@@ -27,6 +28,7 @@ export function ExpenseDetailPage() {
   }
 
   const currencyMismatch = expense.currency !== expense.baseCurrency;
+  const { data: rateData } = useCurrencyRate(expense.currency, expense.baseCurrency);
 
   return (
     <div className="max-w-lg mx-auto p-6">
@@ -74,6 +76,15 @@ export function ExpenseDetailPage() {
           </div>
         )}
       </div>
+      {currencyMismatch && rateData && (
+        <div className="mt-2 text-xs text-slate-400 text-end">
+          {t('expense.exchangeRate', {
+            from: rateData.from,
+            rate: rateData.rate.toFixed(4),
+            to: rateData.to,
+          })}
+        </div>
+      )}
 
       <div className="mt-6">
         <h2 className="font-semibold mb-3 text-slate-900">{t('expense.splits')}</h2>
