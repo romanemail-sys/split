@@ -4,7 +4,7 @@ export const COMMON_CURRENCIES = [
   { code: 'USD', name: 'US Dollar' },
   { code: 'EUR', name: 'Euro' },
   { code: 'GBP', name: 'British Pound' },
-  { code: 'ILS', name: 'Israeli Shekel' },
+  { code: 'ILS', name: 'New Israeli Shekel (NIS / ₪)' },
   { code: 'RUB', name: 'Russian Ruble' },
   { code: 'JPY', name: 'Japanese Yen' },
   { code: 'CAD', name: 'Canadian Dollar' },

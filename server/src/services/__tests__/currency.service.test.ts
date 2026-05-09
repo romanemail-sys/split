@@ -1,10 +1,34 @@
 import { getExchangeRate } from '../currency.service';
 import { prisma } from '../../lib/prisma';
 
-const mockRates = { USD: 1, EUR: 0.92, ILS: 3.7 };
+function yahooResponse(price: number) {
+  return {
+    ok: true,
+    json: async () => ({
+      chart: {
+        result: [{ meta: { regularMarketPrice: price } }],
+        error: null,
+      },
+    }),
+  };
+}
 
-const mockFetch = jest.fn().mockResolvedValue({
-  json: async () => ({ result: 'success', rates: mockRates }),
+function yahooErrorResponse() {
+  return {
+    ok: true,
+    json: async () => ({
+      chart: {
+        result: null,
+        error: { code: 'Not Found', description: 'No data found' },
+      },
+    }),
+  };
+}
+
+const mockFetch = jest.fn().mockImplementation((url: string) => {
+  if (url.includes('USDILS')) return Promise.resolve(yahooResponse(3.7));
+  if (url.includes('USDEUR')) return Promise.resolve(yahooResponse(0.92));
+  return Promise.resolve(yahooErrorResponse());
 });
 
 beforeAll(() => {
@@ -12,9 +36,7 @@ beforeAll(() => {
 });
 
 beforeEach(async () => {
-  await prisma.currencyRate.deleteMany({
-    where: { fromCurrency: 'USD' },
-  });
+  await prisma.currencyRate.deleteMany({ where: { fromCurrency: 'USD' } });
   mockFetch.mockClear();
 });
 
@@ -30,10 +52,11 @@ describe('getExchangeRate', () => {
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
-  it('fetches from API and stores in DB on cache miss', async () => {
+  it('fetches from Yahoo Finance and stores in DB on cache miss', async () => {
     const rate = await getExchangeRate('USD', 'ILS');
     expect(rate).toBe(3.7);
     expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(mockFetch.mock.calls[0][0]).toContain('USDILS=X');
 
     const cached = await prisma.currencyRate.findUnique({
       where: { fromCurrency_toCurrency: { fromCurrency: 'USD', toCurrency: 'ILS' } },
@@ -43,7 +66,6 @@ describe('getExchangeRate', () => {
   });
 
   it('returns cached rate without calling API on cache hit', async () => {
-    // Seed cache directly so fetchedAt is fresh
     await prisma.currencyRate.upsert({
       where: { fromCurrency_toCurrency: { fromCurrency: 'USD', toCurrency: 'EUR' } },
       update: { rate: 0.92, fetchedAt: new Date() },
@@ -56,9 +78,8 @@ describe('getExchangeRate', () => {
   });
 
   it('throws UNSUPPORTED_CURRENCY for unknown target', async () => {
-    mockFetch.mockResolvedValueOnce({
-      json: async () => ({ result: 'success', rates: { EUR: 0.92 } }),
-    });
     await expect(getExchangeRate('USD', 'XYZ')).rejects.toThrow('UNSUPPORTED_CURRENCY:XYZ');
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(mockFetch.mock.calls[0][0]).toContain('USDXYZ=X');
   });
 });
