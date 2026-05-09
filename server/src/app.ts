@@ -9,6 +9,7 @@ import groupsRouter from './routes/groups';
 import expensesRouter from './routes/expenses';
 import categoriesRouter from './routes/categories';
 import uploadsRouter from './routes/uploads';
+import currencyRouter from './routes/currency';
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use('/api/groups', groupsRouter);
 app.use('/api/expenses', expensesRouter);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/uploads', uploadsRouter);
+app.use('/api/currency', currencyRouter);
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
