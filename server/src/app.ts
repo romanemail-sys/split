@@ -8,6 +8,7 @@ import oauthRouter from './routes/oauth';
 import groupsRouter from './routes/groups';
 import expensesRouter from './routes/expenses';
 import categoriesRouter from './routes/categories';
+import uploadsRouter from './routes/uploads';
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use('/api/auth', oauthRouter);
 app.use('/api/groups', groupsRouter);
 app.use('/api/expenses', expensesRouter);
 app.use('/api/categories', categoriesRouter);
+app.use('/api/uploads', uploadsRouter);
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
