@@ -1,8 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --income: #16a34a;
+  --expense: #dc2626;
+}
 
 * { box-sizing: border-box; }
-body { margin: 0; background: #0f172a; color: #f8fafc; font-family: Inter, sans-serif; }
+
+body {
+  margin: 0;
+  background: #0f172a;
+  color: var(--foreground);
+  font-family: Inter, 'Segoe UI', system-ui, sans-serif;
+}
+
+/* RTL: use a font that covers Hebrew and Russian */
+:lang(he) body, [dir="rtl"] body {
+  font-family: Inter, 'Segoe UI', Arial, sans-serif;
+}
+
+.text-income { color: var(--income); }
+.text-expense { color: var(--expense); }
