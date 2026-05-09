@@ -1,0 +1,103 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "groups": "Groups",
+    "expenses": "Expenses",
+    "analytics": "Analytics",
+    "notifications": "Notifications",
+    "logout": "Logout"
+  },
+  "groups": {
+    "title": "Groups",
+    "newGroup": "New Group",
+    "noGroups": "No groups yet. Create one to start splitting expenses.",
+    "createFirst": "Create your first group",
+    "createGroup": "Create Group",
+    "name": "Name",
+    "description": "Description (optional)",
+    "defaultCurrency": "Default Currency",
+    "cancel": "Cancel",
+    "create": "Create",
+    "creating": "Creating…",
+    "failed": "Failed to create group. Please try again.",
+    "loading": "Loading groups…",
+    "members_one": "{{count}} member",
+    "members_other": "{{count}} members"
+  },
+  "groupDetail": {
+    "notFound": "Group not found.",
+    "loading": "Loading…",
+    "tabs": {
+      "expenses": "Expenses",
+      "members": "Members",
+      "balances": "Balances"
+    },
+    "addExpense": "Add Expense",
+    "noExpenses": "No expenses yet.",
+    "paidBy": "Paid by {{name}}",
+    "inviteMember": "Invite Member",
+    "email": "Email",
+    "invite": "Invite",
+    "inviting": "Inviting…",
+    "inviteFailed": "Could not invite member. Check the email and try again.",
+    "remove": "Remove",
+    "noBalances": "No balances.",
+    "viewIn": "View in"
+  },
+  "expense": {
+    "addExpense": "Add Expense",
+    "editExpense": "Edit Expense",
+    "description": "Description",
+    "amount": "Amount",
+    "currency": "Currency",
+    "date": "Date",
+    "paidBy": "Paid by",
+    "category": "Category (optional)",
+    "noCategory": "None",
+    "splitType": "Split Type",
+    "splitDetails": "Split Details",
+    "equalSplit": "Split equally among {{count}} members.",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "addExpenseBtn": "Add Expense",
+    "saving": "Saving…",
+    "failed": "Failed to save expense. Please try again.",
+    "loading": "Loading…",
+    "notFound": "Expense not found.",
+    "baseAmount": "Base Amount",
+    "splitTypeLabel": "Split type",
+    "categoryLabel": "Category",
+    "receipt": "Receipt",
+    "splits": "Splits",
+    "settled": "Settled",
+    "backToGroup": "← Back to Group",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Delete this expense?",
+    "exchangeRate": "Rate: 1 {{from}} = {{rate}} {{to}}"
+  },
+  "auth": {
+    "login": "Log In",
+    "register": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full Name",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "loginWithGoogle": "Continue with Google",
+    "resetPassword": "Reset Password",
+    "sendReset": "Send Reset Link",
+    "newPassword": "New Password"
+  },
+  "dashboard": {
+    "greeting": "Hello, {{name}} 👋",
+    "comingSoon": "Dashboard coming soon."
+  },
+  "common": {
+    "loading": "Loading…",
+    "notFound": "404",
+    "notFoundMsg": "Page not found",
+    "backHome": "Back to home"
+  }
+}

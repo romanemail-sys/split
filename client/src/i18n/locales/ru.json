@@ -1,0 +1,103 @@
+{
+  "nav": {
+    "dashboard": "Дашборд",
+    "groups": "Группы",
+    "expenses": "Расходы",
+    "analytics": "Аналитика",
+    "notifications": "Уведомления",
+    "logout": "Выход"
+  },
+  "groups": {
+    "title": "Группы",
+    "newGroup": "Новая группа",
+    "noGroups": "Групп пока нет. Создайте одну, чтобы начать делить расходы.",
+    "createFirst": "Создать первую группу",
+    "createGroup": "Создать группу",
+    "name": "Название",
+    "description": "Описание (необязательно)",
+    "defaultCurrency": "Валюта по умолчанию",
+    "cancel": "Отмена",
+    "create": "Создать",
+    "creating": "Создание…",
+    "failed": "Не удалось создать группу. Попробуйте ещё раз.",
+    "loading": "Загрузка групп…",
+    "members_one": "{{count}} участник",
+    "members_other": "{{count}} участников"
+  },
+  "groupDetail": {
+    "notFound": "Группа не найдена.",
+    "loading": "Загрузка…",
+    "tabs": {
+      "expenses": "Расходы",
+      "members": "Участники",
+      "balances": "Балансы"
+    },
+    "addExpense": "Добавить расход",
+    "noExpenses": "Расходов пока нет.",
+    "paidBy": "Оплатил {{name}}",
+    "inviteMember": "Пригласить участника",
+    "email": "Email",
+    "invite": "Пригласить",
+    "inviting": "Приглашение…",
+    "inviteFailed": "Не удалось пригласить участника. Проверьте email и попробуйте снова.",
+    "remove": "Удалить",
+    "noBalances": "Балансов нет.",
+    "viewIn": "Показать в"
+  },
+  "expense": {
+    "addExpense": "Добавить расход",
+    "editExpense": "Редактировать расход",
+    "description": "Описание",
+    "amount": "Сумма",
+    "currency": "Валюта",
+    "date": "Дата",
+    "paidBy": "Оплатил",
+    "category": "Категория (необязательно)",
+    "noCategory": "Без категории",
+    "splitType": "Тип разделения",
+    "splitDetails": "Детали разделения",
+    "equalSplit": "Разделить поровну между {{count}} участниками.",
+    "cancel": "Отмена",
+    "saveChanges": "Сохранить",
+    "addExpenseBtn": "Добавить расход",
+    "saving": "Сохранение…",
+    "failed": "Не удалось сохранить расход. Попробуйте ещё раз.",
+    "loading": "Загрузка…",
+    "notFound": "Расход не найден.",
+    "baseAmount": "Базовая сумма",
+    "splitTypeLabel": "Тип разделения",
+    "categoryLabel": "Категория",
+    "receipt": "Квитанция",
+    "splits": "Разделение",
+    "settled": "Погашено",
+    "backToGroup": "← Назад к группе",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "confirmDelete": "Удалить этот расход?",
+    "exchangeRate": "Курс: 1 {{from}} = {{rate}} {{to}}"
+  },
+  "auth": {
+    "login": "Войти",
+    "register": "Создать аккаунт",
+    "email": "Email",
+    "password": "Пароль",
+    "name": "Полное имя",
+    "forgotPassword": "Забыли пароль?",
+    "noAccount": "Нет аккаунта?",
+    "hasAccount": "Уже есть аккаунт?",
+    "loginWithGoogle": "Войти через Google",
+    "resetPassword": "Сброс пароля",
+    "sendReset": "Отправить ссылку",
+    "newPassword": "Новый пароль"
+  },
+  "dashboard": {
+    "greeting": "Привет, {{name}} 👋",
+    "comingSoon": "Дашборд скоро появится."
+  },
+  "common": {
+    "loading": "Загрузка…",
+    "notFound": "404",
+    "notFoundMsg": "Страница не найдена",
+    "backHome": "На главную"
+  }
+}

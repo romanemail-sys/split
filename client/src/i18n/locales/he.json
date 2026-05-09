@@ -1,0 +1,103 @@
+{
+  "nav": {
+    "dashboard": "דאשבורד",
+    "groups": "קבוצות",
+    "expenses": "הוצאות",
+    "analytics": "ניתוח",
+    "notifications": "התראות",
+    "logout": "התנתק"
+  },
+  "groups": {
+    "title": "קבוצות",
+    "newGroup": "קבוצה חדשה",
+    "noGroups": "אין קבוצות עדיין. צור אחת כדי להתחיל לחלק הוצאות.",
+    "createFirst": "צור את הקבוצה הראשונה שלך",
+    "createGroup": "צור קבוצה",
+    "name": "שם",
+    "description": "תיאור (אופציונלי)",
+    "defaultCurrency": "מטבע ברירת מחדל",
+    "cancel": "ביטול",
+    "create": "צור",
+    "creating": "יוצר…",
+    "failed": "יצירת הקבוצה נכשלה. אנא נסה שוב.",
+    "loading": "טוען קבוצות…",
+    "members_one": "{{count}} חבר",
+    "members_other": "{{count}} חברים"
+  },
+  "groupDetail": {
+    "notFound": "הקבוצה לא נמצאה.",
+    "loading": "טוען…",
+    "tabs": {
+      "expenses": "הוצאות",
+      "members": "חברים",
+      "balances": "יתרות"
+    },
+    "addExpense": "הוסף הוצאה",
+    "noExpenses": "אין הוצאות עדיין.",
+    "paidBy": "שילם {{name}}",
+    "inviteMember": "הזמן חבר",
+    "email": "אימייל",
+    "invite": "הזמן",
+    "inviting": "מזמין…",
+    "inviteFailed": "לא ניתן להזמין חבר. בדוק את האימייל ונסה שוב.",
+    "remove": "הסר",
+    "noBalances": "אין יתרות.",
+    "viewIn": "הצג במטבע"
+  },
+  "expense": {
+    "addExpense": "הוסף הוצאה",
+    "editExpense": "ערוך הוצאה",
+    "description": "תיאור",
+    "amount": "סכום",
+    "currency": "מטבע",
+    "date": "תאריך",
+    "paidBy": "שולם על ידי",
+    "category": "קטגוריה (אופציונלי)",
+    "noCategory": "ללא",
+    "splitType": "סוג חלוקה",
+    "splitDetails": "פרטי חלוקה",
+    "equalSplit": "חלוקה שווה בין {{count}} חברים.",
+    "cancel": "ביטול",
+    "saveChanges": "שמור שינויים",
+    "addExpenseBtn": "הוסף הוצאה",
+    "saving": "שומר…",
+    "failed": "שמירת ההוצאה נכשלה. אנא נסה שוב.",
+    "loading": "טוען…",
+    "notFound": "ההוצאה לא נמצאה.",
+    "baseAmount": "סכום בסיס",
+    "splitTypeLabel": "סוג חלוקה",
+    "categoryLabel": "קטגוריה",
+    "receipt": "קבלה",
+    "splits": "חלוקה",
+    "settled": "סולק",
+    "backToGroup": "← חזרה לקבוצה",
+    "edit": "עריכה",
+    "delete": "מחיקה",
+    "confirmDelete": "למחוק את ההוצאה?",
+    "exchangeRate": "שער: 1 {{from}} = {{rate}} {{to}}"
+  },
+  "auth": {
+    "login": "התחברות",
+    "register": "יצירת חשבון",
+    "email": "אימייל",
+    "password": "סיסמה",
+    "name": "שם מלא",
+    "forgotPassword": "שכחת סיסמה?",
+    "noAccount": "אין לך חשבון?",
+    "hasAccount": "יש לך חשבון?",
+    "loginWithGoogle": "המשך עם Google",
+    "resetPassword": "איפוס סיסמה",
+    "sendReset": "שלח קישור לאיפוס",
+    "newPassword": "סיסמה חדשה"
+  },
+  "dashboard": {
+    "greeting": "שלום, {{name}} 👋",
+    "comingSoon": "הדאשבורד יהיה כאן בקרוב."
+  },
+  "common": {
+    "loading": "טוען…",
+    "notFound": "404",
+    "notFoundMsg": "הדף לא נמצא",
+    "backHome": "חזרה הביתה"
+  }
+}
