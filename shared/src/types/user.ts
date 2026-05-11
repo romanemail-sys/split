@@ -5,5 +5,6 @@ export interface User {
   avatarUrl: string | null;
   defaultCurrency: string;
   emailVerified: boolean;
+  isAdmin: boolean;
   createdAt: string;
 }
