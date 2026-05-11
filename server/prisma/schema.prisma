@@ -20,6 +20,8 @@ model User {
   resetPasswordToken   String?   @unique
   resetPasswordExpiry  DateTime?
   createdAt            DateTime  @default(now())
+  isAdmin              Boolean   @default(false)
+  isActive             Boolean   @default(true)
 
   groupsCreated   Group[]         @relation("GroupCreator")
   groupMembers    GroupMember[]
