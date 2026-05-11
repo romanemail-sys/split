@@ -158,7 +158,7 @@ export function AdminPage() {
               <tr>
                 <th className="px-4 py-3 text-start">{t('admin.name')}</th>
                 <th className="px-4 py-3 text-start">{t('admin.email')}</th>
-                <th className="px-4 py-3 text-start">{t('admin.users')}</th>
+                <th className="px-4 py-3 text-start">{t('admin.status')}</th>
                 <th className="px-4 py-3 text-start">{t('admin.createdAt')}</th>
                 <th className="px-4 py-3 text-end"></th>
               </tr>
