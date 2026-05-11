@@ -10,6 +10,8 @@ import expensesRouter from './routes/expenses';
 import categoriesRouter from './routes/categories';
 import uploadsRouter from './routes/uploads';
 import currencyRouter from './routes/currency';
+import meRouter from './routes/me';
+import adminRouter from './routes/admin';
 
 const app = express();
 
@@ -25,6 +27,8 @@ app.use('/api/expenses', expensesRouter);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/uploads', uploadsRouter);
 app.use('/api/currency', currencyRouter);
+app.use('/api/me', meRouter);
+app.use('/api/admin', adminRouter);
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
