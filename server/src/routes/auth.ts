@@ -54,6 +54,10 @@ router.post('/login', validate(loginSchema), async (req: Request, res: Response)
       res.status(401).json({ error: { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' } });
       return;
     }
+    if (err instanceof Error && err.message === 'ACCOUNT_DISABLED') {
+      res.status(403).json({ error: { code: 'ACCOUNT_DISABLED', message: 'This account has been deactivated' } });
+      return;
+    }
     res.status(500).json({ error: { code: 'INTERNAL', message: 'Server error' } });
   }
 });

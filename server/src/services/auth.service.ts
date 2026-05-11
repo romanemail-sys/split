@@ -26,6 +26,7 @@ interface AuthResponse {
     avatarUrl: string | null;
     defaultCurrency: string;
     emailVerified: boolean;
+    isAdmin: boolean;
     createdAt: string;
   };
   accessToken: string;
@@ -39,6 +40,7 @@ function toUserDTO(user: PrismaUser) {
     avatarUrl: user.avatarUrl,
     defaultCurrency: user.defaultCurrency,
     emailVerified: user.emailVerified,
+    isAdmin: user.isAdmin,
     createdAt: user.createdAt.toISOString(),
   };
 }
@@ -65,6 +67,8 @@ export async function login(data: LoginRequest): Promise<AuthResponse & { refres
 
   const valid = await bcrypt.compare(data.password, user.passwordHash);
   if (!valid) throw new Error('INVALID_CREDENTIALS');
+
+  if (!user.isActive) throw new Error('ACCOUNT_DISABLED');
 
   const accessToken = generateAccessToken(user.id);
   const refreshToken = generateRefreshToken(user.id);
