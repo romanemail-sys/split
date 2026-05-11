@@ -1,11 +1,13 @@
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLogout } from '../../hooks/useAuth';
+import { useAuthStore } from '../../stores/auth.store';
 import { LanguageSelector } from '../LanguageSelector';
 
 export default function Sidebar() {
   const { t } = useTranslation();
   const logout = useLogout();
+  const user = useAuthStore((s) => s.user);
 
   const navItems = [
     { to: '/dashboard', icon: '🏠', label: t('nav.dashboard') },
@@ -13,6 +15,7 @@ export default function Sidebar() {
     { to: '/expenses', icon: '💸', label: t('nav.expenses') },
     { to: '/analytics', icon: '📊', label: t('nav.analytics') },
     { to: '/notifications', icon: '🔔', label: t('nav.notifications') },
+    ...(user?.isAdmin ? [{ to: '/admin', icon: '🛡️', label: t('nav.admin') }] : []),
   ];
 
   return (

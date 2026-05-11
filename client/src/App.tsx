@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AppLayout from './components/layout/AppLayout';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
@@ -10,8 +11,12 @@ import OAuthCallbackPage from './pages/auth/OAuthCallbackPage';
 import DashboardPage from './pages/DashboardPage';
 import { GroupsPage } from './pages/GroupsPage';
 import { GroupDetailPage } from './pages/GroupDetailPage';
+import { ExpensesPage } from './pages/expenses/ExpensesPage';
 import { ExpenseFormPage } from './pages/expenses/ExpenseFormPage';
 import { ExpenseDetailPage } from './pages/expenses/ExpenseDetailPage';
+import { AnalyticsPage } from './pages/AnalyticsPage';
+import { NotificationsPage } from './pages/NotificationsPage';
+import { AdminPage } from './pages/admin/AdminPage';
 
 function NotFoundPage() {
   const { t } = useTranslation();
@@ -25,6 +30,7 @@ function NotFoundPage() {
     </div>
   );
 }
+
 
 export default function App() {
   return (
@@ -47,12 +53,13 @@ export default function App() {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="groups" element={<GroupsPage />} />
           <Route path="groups/:id" element={<GroupDetailPage />} />
-          <Route path="expenses" element={<div className="text-slate-400">Expenses — Plan 2</div>} />
+          <Route path="expenses" element={<ExpensesPage />} />
           <Route path="expenses/new" element={<ExpenseFormPage />} />
           <Route path="expenses/:id" element={<ExpenseDetailPage />} />
           <Route path="expenses/:id/edit" element={<ExpenseFormPage />} />
-          <Route path="analytics" element={<div className="text-slate-400">Analytics — Plan 4</div>} />
-          <Route path="notifications" element={<div className="text-slate-400">Notifications — Plan 4</div>} />
+          <Route path="analytics" element={<AnalyticsPage />} />
+          <Route path="notifications" element={<NotificationsPage />} />
+          <Route path="admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
