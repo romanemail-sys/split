@@ -5,6 +5,7 @@
     "expenses": "הוצאות",
     "analytics": "ניתוח",
     "notifications": "התראות",
+    "admin": "ניהול",
     "logout": "התנתק"
   },
   "groups": {
@@ -30,7 +31,8 @@
     "tabs": {
       "expenses": "הוצאות",
       "members": "חברים",
-      "balances": "יתרות"
+      "balances": "יתרות",
+      "history": "היסטוריה"
     },
     "addExpense": "הוסף הוצאה",
     "noExpenses": "אין הוצאות עדיין.",
@@ -42,7 +44,19 @@
     "inviteFailed": "לא ניתן להזמין חבר. בדוק את האימייל ונסה שוב.",
     "remove": "הסר",
     "noBalances": "אין יתרות.",
-    "viewIn": "הצג במטבע"
+    "viewIn": "הצג במטבע",
+    "settleUp": "התחשבן",
+    "noHistory": "אין פעילות עדיין.",
+    "activityExpenseCreated": "הוסיף «{{description}}»",
+    "activitySplitSettled": "סילק את חלקו ב«{{description}}»",
+    "activityMemberJoined": "הצטרף לקבוצה",
+    "payWith": "שלם עם",
+    "vizCurrentTitle": "מפת חובות נוכחית",
+    "vizMinTitle": "תוכנית סילוק אופטימלית",
+    "vizTxCount": "{{count}} עסקאות",
+    "vizSaved": "חוסך {{count}} שלבים",
+    "vizPlan": "סדר ההתחשבנות",
+    "vizAllSettled": "כל החובות סולקו ✓"
   },
   "expense": {
     "addExpense": "הוסף הוצאה",
@@ -74,7 +88,30 @@
     "edit": "עריכה",
     "delete": "מחיקה",
     "confirmDelete": "למחוק את ההוצאה?",
-    "exchangeRate": "שער: 1 {{from}} = {{rate}} {{to}}"
+    "exchangeRate": "שער: 1 {{from}} = {{rate}} {{to}}",
+    "settleSplit": "סלק",
+    "settling": "מסלק…",
+    "equalSplitPreview": "{{amount}} {{currency}} לכל אחד",
+    "participants": "משתתפים",
+    "selectAll": "בחר הכל",
+    "deselectAll": "בטל הכל",
+    "payer": "משלם",
+    "participantCount": "{{count}} מתוך {{total}} חברים",
+    "totalAssigned": "סה״כ מוקצה",
+    "shares": "חלקים",
+    "totalShares": "סה״כ חלקים",
+    "splitTypeOptions": {
+      "EQUAL": "שווה",
+      "EXACT": "סכום מדויק",
+      "PERCENTAGE": "אחוזים",
+      "SHARES": "חלקים"
+    }
+  },
+  "expenses": {
+    "title": "ההוצאות שלי",
+    "loading": "טוען הוצאות…",
+    "noExpenses": "אין הוצאות עדיין.",
+    "group": "קבוצה: {{name}}"
   },
   "auth": {
     "login": "התחברות",
@@ -92,7 +129,53 @@
   },
   "dashboard": {
     "greeting": "שלום, {{name}} 👋",
-    "comingSoon": "הדאשבורד יהיה כאן בקרוב."
+    "comingSoon": "הדאשבורד יהיה כאן בקרוב.",
+    "youAreOwed": "חייבים לך",
+    "youOwe": "אתה חייב",
+    "groups": "קבוצות",
+    "expenses": "הוצאות",
+    "recentExpenses": "הוצאות אחרונות",
+    "noExpenses": "אין הוצאות עדיין.",
+    "paidBy": "שילם {{name}}",
+    "youPaid": "שילמת"
+  },
+  "analytics": {
+    "comingSoon": "ניתוח יהיה זמין בקרוב.",
+    "title": "ניתוח",
+    "totalSpent": "סה״כ הוצאתי",
+    "spendingByMonth": "הוצאות חודשיות",
+    "spendingByCategory": "לפי קטגוריה",
+    "topExpenses": "ההוצאות הגדולות",
+    "noData": "אין נתונים עדיין.",
+    "transactions": "{{count}} עסקאות"
+  },
+  "notifications": {
+    "comingSoon": "התראות יהיו זמינות בקרוב.",
+    "title": "פעילות",
+    "noActivity": "אין פעילות עדיין.",
+    "activityExpenseCreated": "הוסיף «{{description}}»",
+    "activitySplitSettled": "סילק חלקו ב«{{description}}»",
+    "activityMemberJoined": "הצטרף ל{{groupName}}",
+    "inGroup": "ב{{groupName}}"
+  },
+  "admin": {
+    "title": "פאנל ניהול",
+    "users": "משתמשים",
+    "addUser": "הוסף משתמש",
+    "name": "שם מלא",
+    "email": "אימייל",
+    "password": "סיסמה",
+    "create": "צור משתמש",
+    "creating": "יוצר…",
+    "status": "סטטוס",
+    "statusActive": "פעיל",
+    "statusInactive": "מושבת",
+    "deactivate": "השבת",
+    "activate": "הפעל",
+    "adminBadge": "מנהל",
+    "createdAt": "הצטרף",
+    "failedCreate": "לא ניתן ליצור משתמש. כתובת האימייל אולי כבר בשימוש.",
+    "failedToggle": "עדכון סטטוס המשתמש נכשל."
   },
   "common": {
     "loading": "טוען…",

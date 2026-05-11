@@ -5,6 +5,7 @@
     "expenses": "Expenses",
     "analytics": "Analytics",
     "notifications": "Notifications",
+    "admin": "Admin",
     "logout": "Logout"
   },
   "groups": {
@@ -30,7 +31,8 @@
     "tabs": {
       "expenses": "Expenses",
       "members": "Members",
-      "balances": "Balances"
+      "balances": "Balances",
+      "history": "History"
     },
     "addExpense": "Add Expense",
     "noExpenses": "No expenses yet.",
@@ -42,7 +44,23 @@
     "inviteFailed": "Could not invite member. Check the email and try again.",
     "remove": "Remove",
     "noBalances": "No balances.",
-    "viewIn": "View in"
+    "viewIn": "View in",
+    "settleUp": "Settle up",
+    "noHistory": "No activity yet.",
+    "activityExpenseCreated": "added «{{description}}»",
+    "activitySplitSettled": "settled their share of «{{description}}»",
+    "activityMemberJoined": "joined the group",
+    "payWith": "Pay with",
+    "vizCurrentTitle": "Current debt flow",
+    "vizMinTitle": "Optimal settlement plan",
+    "vizTxCount_one": "{{count}} transaction",
+    "vizTxCount_other": "{{count}} transactions",
+    "vizTxCount": "{{count}} transactions",
+    "vizSaved_one": "saves {{count}} step",
+    "vizSaved_other": "saves {{count}} steps",
+    "vizSaved": "saves {{count}} steps",
+    "vizPlan": "Settlement order",
+    "vizAllSettled": "All debts are settled ✓"
   },
   "expense": {
     "addExpense": "Add Expense",
@@ -74,7 +92,30 @@
     "edit": "Edit",
     "delete": "Delete",
     "confirmDelete": "Delete this expense?",
-    "exchangeRate": "Rate: 1 {{from}} = {{rate}} {{to}}"
+    "exchangeRate": "Rate: 1 {{from}} = {{rate}} {{to}}",
+    "settleSplit": "Settle",
+    "settling": "Settling…",
+    "equalSplitPreview": "{{amount}} {{currency}} each",
+    "participants": "Participants",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
+    "payer": "Payer",
+    "participantCount": "{{count}} of {{total}} members",
+    "totalAssigned": "Assigned",
+    "shares": "shares",
+    "totalShares": "Total shares",
+    "splitTypeOptions": {
+      "EQUAL": "Equal",
+      "EXACT": "Exact amount",
+      "PERCENTAGE": "Percentage",
+      "SHARES": "Shares"
+    }
+  },
+  "expenses": {
+    "title": "My Expenses",
+    "loading": "Loading expenses…",
+    "noExpenses": "No expenses yet.",
+    "group": "Group: {{name}}"
   },
   "auth": {
     "login": "Log In",
@@ -92,7 +133,53 @@
   },
   "dashboard": {
     "greeting": "Hello, {{name}} 👋",
-    "comingSoon": "Dashboard coming soon."
+    "comingSoon": "Dashboard coming soon.",
+    "youAreOwed": "You are owed",
+    "youOwe": "You owe",
+    "groups": "Groups",
+    "expenses": "Expenses",
+    "recentExpenses": "Recent expenses",
+    "noExpenses": "No expenses yet.",
+    "paidBy": "Paid by {{name}}",
+    "youPaid": "You paid"
+  },
+  "analytics": {
+    "comingSoon": "Analytics coming soon — stay tuned.",
+    "title": "Analytics",
+    "totalSpent": "Total spent (my share)",
+    "spendingByMonth": "Monthly spending",
+    "spendingByCategory": "By category",
+    "topExpenses": "Top expenses",
+    "noData": "No data yet.",
+    "transactions": "{{count}} transactions"
+  },
+  "notifications": {
+    "comingSoon": "Notifications coming soon — stay tuned.",
+    "title": "Activity",
+    "noActivity": "No activity yet.",
+    "activityExpenseCreated": "added «{{description}}»",
+    "activitySplitSettled": "settled their share of «{{description}}»",
+    "activityMemberJoined": "joined {{groupName}}",
+    "inGroup": "in {{groupName}}"
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "users": "Users",
+    "addUser": "Add User",
+    "name": "Full Name",
+    "email": "Email",
+    "password": "Password",
+    "create": "Create User",
+    "creating": "Creating…",
+    "status": "Status",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "deactivate": "Deactivate",
+    "activate": "Activate",
+    "adminBadge": "Admin",
+    "createdAt": "Joined",
+    "failedCreate": "Failed to create user. Email may already be in use.",
+    "failedToggle": "Failed to update user status."
   },
   "common": {
     "loading": "Loading…",

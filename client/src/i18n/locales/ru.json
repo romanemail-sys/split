@@ -5,6 +5,7 @@
     "expenses": "Расходы",
     "analytics": "Аналитика",
     "notifications": "Уведомления",
+    "admin": "Админ",
     "logout": "Выход"
   },
   "groups": {
@@ -30,7 +31,8 @@
     "tabs": {
       "expenses": "Расходы",
       "members": "Участники",
-      "balances": "Балансы"
+      "balances": "Балансы",
+      "history": "История"
     },
     "addExpense": "Добавить расход",
     "noExpenses": "Расходов пока нет.",
@@ -42,7 +44,19 @@
     "inviteFailed": "Не удалось пригласить участника. Проверьте email и попробуйте снова.",
     "remove": "Удалить",
     "noBalances": "Балансов нет.",
-    "viewIn": "Показать в"
+    "viewIn": "Показать в",
+    "settleUp": "Рассчитаться",
+    "noHistory": "Действий пока нет.",
+    "activityExpenseCreated": "добавил «{{description}}»",
+    "activitySplitSettled": "закрыл долг по «{{description}}»",
+    "activityMemberJoined": "вступил в группу",
+    "payWith": "Оплатить через",
+    "vizCurrentTitle": "Карта текущих долгов",
+    "vizMinTitle": "Оптимальный план расчётов",
+    "vizTxCount": "{{count}} транзакций",
+    "vizSaved": "экономит {{count}} шагов",
+    "vizPlan": "Порядок расчётов",
+    "vizAllSettled": "Все долги погашены ✓"
   },
   "expense": {
     "addExpense": "Добавить расход",
@@ -74,7 +88,30 @@
     "edit": "Редактировать",
     "delete": "Удалить",
     "confirmDelete": "Удалить этот расход?",
-    "exchangeRate": "Курс: 1 {{from}} = {{rate}} {{to}}"
+    "exchangeRate": "Курс: 1 {{from}} = {{rate}} {{to}}",
+    "settleSplit": "Погасить",
+    "settling": "Погашение…",
+    "equalSplitPreview": "{{amount}} {{currency}} с каждого",
+    "participants": "Участники",
+    "selectAll": "Выбрать всех",
+    "deselectAll": "Снять выбор",
+    "payer": "Плательщик",
+    "participantCount": "{{count}} из {{total}} участников",
+    "totalAssigned": "Распределено",
+    "shares": "доли",
+    "totalShares": "Всего долей",
+    "splitTypeOptions": {
+      "EQUAL": "Поровну",
+      "EXACT": "Точная сумма",
+      "PERCENTAGE": "Процент",
+      "SHARES": "Доли"
+    }
+  },
+  "expenses": {
+    "title": "Мои расходы",
+    "loading": "Загрузка расходов…",
+    "noExpenses": "Расходов пока нет.",
+    "group": "Группа: {{name}}"
   },
   "auth": {
     "login": "Войти",
@@ -92,7 +129,53 @@
   },
   "dashboard": {
     "greeting": "Привет, {{name}} 👋",
-    "comingSoon": "Дашборд скоро появится."
+    "comingSoon": "Дашборд скоро появится.",
+    "youAreOwed": "Вам должны",
+    "youOwe": "Вы должны",
+    "groups": "Групп",
+    "expenses": "Расходов",
+    "recentExpenses": "Последние расходы",
+    "noExpenses": "Расходов пока нет.",
+    "paidBy": "Оплатил {{name}}",
+    "youPaid": "Вы оплатили"
+  },
+  "analytics": {
+    "comingSoon": "Аналитика скоро появится.",
+    "title": "Аналитика",
+    "totalSpent": "Всего потрачено (моя доля)",
+    "spendingByMonth": "По месяцам",
+    "spendingByCategory": "По категориям",
+    "topExpenses": "Крупные расходы",
+    "noData": "Нет данных.",
+    "transactions": "{{count}} расходов"
+  },
+  "notifications": {
+    "comingSoon": "Уведомления скоро появятся.",
+    "title": "Активность",
+    "noActivity": "Активности пока нет.",
+    "activityExpenseCreated": "добавил «{{description}}»",
+    "activitySplitSettled": "закрыл долг по «{{description}}»",
+    "activityMemberJoined": "вступил в {{groupName}}",
+    "inGroup": "в {{groupName}}"
+  },
+  "admin": {
+    "title": "Панель администратора",
+    "users": "Пользователи",
+    "addUser": "Добавить пользователя",
+    "name": "Полное имя",
+    "email": "Email",
+    "password": "Пароль",
+    "create": "Создать пользователя",
+    "creating": "Создание…",
+    "status": "Статус",
+    "statusActive": "Активен",
+    "statusInactive": "Отключён",
+    "deactivate": "Отключить",
+    "activate": "Активировать",
+    "adminBadge": "Админ",
+    "createdAt": "Дата регистрации",
+    "failedCreate": "Не удалось создать пользователя. Email уже может быть занят.",
+    "failedToggle": "Не удалось обновить статус пользователя."
   },
   "common": {
     "loading": "Загрузка…",
