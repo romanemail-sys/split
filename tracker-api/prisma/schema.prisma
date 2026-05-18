@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Device {
+  id         String    @id
+  name       String?
+  createdAt  DateTime  @default(now())
+  lastSeenAt DateTime?
+
+  locations LocationRecord[]
+  members   GroupMember[]
+  blockedBy Block[]         @relation("Blocked")
+  blocking  Block[]         @relation("Blocker")
+}
+
+model LocationRecord {
+  id        String   @id @default(uuid())
+  deviceId  String
+  latitude  Float
+  longitude Float
+  accuracy  Float?
+  altitude  Float?
+  timestamp DateTime
+
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId, timestamp])
+}
+
+model Group {
+  id          String   @id @default(uuid())
+  name        String
+  createdById String
+  createdAt   DateTime @default(now())
+
+  members GroupMember[]
+}
+
+model GroupMember {
+  groupId  String
+  deviceId String
+  role     GroupRole @default(MEMBER)
+  joinedAt DateTime  @default(now())
+
+  group  Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@id([groupId, deviceId])
+  @@index([deviceId])
+}
+
+enum GroupRole {
+  OWNER
+  MEMBER
+}
+
+model Block {
+  blockerId String
+  blockedId String
+  createdAt DateTime @default(now())
+
+  blocker Device @relation("Blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked Device @relation("Blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  @@id([blockerId, blockedId])
+}
+
+model AppConfig {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
