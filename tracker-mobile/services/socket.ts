@@ -8,6 +8,7 @@ let socket: Socket | null = null;
 export async function getSocket(): Promise<Socket> {
   if (socket?.connected) return socket;
 
+  socket?.disconnect();
   const deviceId = await AsyncStorage.getItem('deviceId');
   socket = io(API_BASE, { auth: { deviceId }, transports: ['websocket'] });
   return socket;

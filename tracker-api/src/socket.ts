@@ -36,20 +36,26 @@ export function registerSocketHandlers(io: Server) {
         select: { deviceId: true },
       });
 
-      for (const gm of groupMembers) {
-        if (gm.deviceId === deviceId) continue;
+      const memberIds = groupMembers.map((m) => m.deviceId).filter((id) => id !== deviceId);
+      if (memberIds.length === 0) return;
 
-        const block = await prisma.block.findFirst({
-          where: {
-            OR: [
-              { blockerId: gm.deviceId, blockedId: deviceId },
-              { blockerId: deviceId, blockedId: gm.deviceId },
-            ],
-          },
-        });
-        if (block) continue;
+      const blockRows = await prisma.block.findMany({
+        where: {
+          OR: [
+            { blockerId: deviceId, blockedId: { in: memberIds } },
+            { blockedId: deviceId, blockerId: { in: memberIds } },
+          ],
+        },
+      });
+      const blockedSet = new Set([
+        ...blockRows.map((b) => b.blockedId),
+        ...blockRows.map((b) => b.blockerId),
+      ]);
+      blockedSet.delete(deviceId);
 
-        io.to(`device:${gm.deviceId}`).emit('location:live', {
+      for (const recipientId of memberIds) {
+        if (blockedSet.has(recipientId)) continue;
+        io.to(`device:${recipientId}`).emit('location:live', {
           deviceId,
           latitude,
           longitude,

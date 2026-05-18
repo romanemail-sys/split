@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../prisma';
+import { deviceAuth } from '../middleware/deviceAuth';
 
 export const devicesRouter = Router();
 
@@ -22,8 +23,8 @@ devicesRouter.post('/', async (req, res) => {
   res.json(device);
 });
 
-devicesRouter.get('/:id', async (req, res) => {
+devicesRouter.get('/:id', deviceAuth, async (req, res) => {
   const device = await prisma.device.findUnique({ where: { id: req.params.id } });
   if (!device) return res.status(404).json({ error: 'Not found' });
-  res.json(device);
+  res.json({ id: device.id, name: device.name });
 });

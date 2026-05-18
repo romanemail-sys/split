@@ -17,13 +17,19 @@ export default function GroupDetailScreen() {
   const { members, refresh } = useGroupMembers(groupId);
 
   useEffect(() => {
+    let mounted = true;
     (async () => {
       await joinGroupRoom(groupId);
       const s = await getSocket();
-      s.on('location:live', ({ deviceId: fromId, latitude, longitude, timestamp }) => {
-        updateLiveLocation(fromId, latitude, longitude, timestamp);
-      });
+      const handler = ({ deviceId: fromId, latitude, longitude, timestamp }: {
+        deviceId: string; latitude: number; longitude: number; timestamp: string;
+      }) => {
+        if (mounted) updateLiveLocation(fromId, latitude, longitude, timestamp);
+      };
+      s.on('location:live', handler);
+      return () => { s.off('location:live', handler); };
     })();
+    return () => { mounted = false; };
   }, [groupId]);
 
   const handleBlock = (targetDeviceId: string) => {

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Alert, Clipboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDeviceStore } from '../../store/deviceStore';
 import { startLocationTracking, stopLocationTracking } from '../../services/locationTask';
 
@@ -8,7 +9,7 @@ export default function SettingsScreen() {
 
   const copyDeviceId = () => {
     if (!deviceId) return;
-    Clipboard.setString(deviceId);
+    Clipboard.setStringAsync(deviceId);
     Alert.alert('Copied', 'Device ID copied to clipboard');
   };
 

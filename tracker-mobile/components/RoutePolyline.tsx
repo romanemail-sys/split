@@ -22,9 +22,9 @@ export function RoutePolyline({ points, color = '#007AFF' }: Props) {
   return (
     <>
       <Polyline coordinates={coordinates} strokeColor={color} strokeWidth={3} />
-      {milestones.map((p, i) => (
+      {milestones.map((p) => (
         <Marker
-          key={i}
+          key={p.timestamp}
           coordinate={{ latitude: p.latitude, longitude: p.longitude }}
           pinColor={color}
         >

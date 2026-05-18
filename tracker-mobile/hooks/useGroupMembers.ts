@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { fetchGroupMembers } from '../services/api';
 
 export interface GroupMember {
@@ -11,17 +11,17 @@ export function useGroupMembers(groupId: string) {
   const [members, setMembers] = useState<GroupMember[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const refresh = () => {
+  const refresh = useCallback(() => {
     fetchGroupMembers(groupId)
       .then(setMembers)
       .finally(() => setLoading(false));
-  };
+  }, [groupId]);
 
   useEffect(() => {
     refresh();
     const interval = setInterval(refresh, 30_000);
     return () => clearInterval(interval);
-  }, [groupId]);
+  }, [refresh]);
 
   return { members, loading, refresh };
 }

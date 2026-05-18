@@ -11,8 +11,13 @@ adminRouter.get('/config', async (_req, res) => {
   res.json(configs);
 });
 
+const NUMERIC_KEYS = new Set(['trackingIntervalSeconds']);
+
 adminRouter.put('/config/:key', async (req, res) => {
-  const parsed = z.object({ value: z.string() }).safeParse(req.body);
+  const valueSchema = NUMERIC_KEYS.has(req.params.key)
+    ? z.object({ value: z.string().regex(/^\d+$/, 'must be a positive integer') })
+    : z.object({ value: z.string() });
+  const parsed = valueSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const record = await prisma.appConfig.upsert({
