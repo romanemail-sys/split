@@ -49,3 +49,48 @@ describe('POST /locations', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('GET /locations', () => {
+  beforeEach(() => {
+    (prisma.device.findUnique as jest.Mock).mockResolvedValue({ id: DEVICE_ID });
+  });
+
+  it('returns own location history', async () => {
+    (prisma.locationRecord.findMany as jest.Mock).mockResolvedValue([
+      { id: 'loc1', deviceId: DEVICE_ID, latitude: 32.08, longitude: 34.78, timestamp: new Date() },
+    ]);
+    (prisma.block.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.groupMember.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app)
+      .get(`/locations?deviceId=${DEVICE_ID}`)
+      .set('X-Device-Id', DEVICE_ID);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveLength(1);
+  });
+
+  it('returns 403 when target is not in a shared group', async () => {
+    const OTHER = 'bbbbbbbb-0000-4000-8000-000000000002';
+    (prisma.block.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.groupMember.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.groupMember.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app)
+      .get(`/locations?deviceId=${OTHER}`)
+      .set('X-Device-Id', DEVICE_ID);
+
+    expect(res.status).toBe(403);
+  });
+
+  it('returns 403 when target has blocked viewer', async () => {
+    const OTHER = 'bbbbbbbb-0000-4000-8000-000000000002';
+    (prisma.block.findFirst as jest.Mock).mockResolvedValue({ blockerId: OTHER, blockedId: DEVICE_ID });
+
+    const res = await request(app)
+      .get(`/locations?deviceId=${OTHER}`)
+      .set('X-Device-Id', DEVICE_ID);
+
+    expect(res.status).toBe(403);
+  });
+});
