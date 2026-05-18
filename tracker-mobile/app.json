@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Location Tracker",
+    "slug": "location-tracker",
+    "version": "1.0.0",
+    "scheme": "location-tracker",
+    "platforms": ["ios", "android"],
+    "ios": {
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Used to record your location history.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Used to record location in the background.",
+        "UIBackgroundModes": ["location", "fetch"]
+      }
+    },
+    "android": {
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-router",
+        {
+          "root": "./app"
+        }
+      ]
+    ]
+  }
+}
