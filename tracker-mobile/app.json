@@ -3,6 +3,7 @@
     "name": "Location Tracker",
     "slug": "location-tracker",
     "version": "1.0.0",
+    "sdkVersion": "54.0.0",
     "scheme": "location-tracker",
     "platforms": ["ios", "android"],
     "ios": {
