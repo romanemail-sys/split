@@ -40,23 +40,30 @@ describe('POST /devices', () => {
 });
 
 describe('GET /devices/:id', () => {
+  const callerId = 'aaaaaaaa-0000-4000-8000-000000000002';
+  const callerDevice = { id: callerId, name: 'Caller', createdAt: new Date(), lastSeenAt: new Date() };
+
   it('returns device when found', async () => {
     const deviceId = 'aaaaaaaa-0000-4000-8000-000000000001';
-    (prisma.device.findUnique as jest.Mock).mockResolvedValue({
-      id: deviceId,
-      name: 'My Phone',
-      createdAt: new Date(),
-      lastSeenAt: new Date(),
-    });
+    (prisma.device.findUnique as jest.Mock)
+      .mockResolvedValueOnce(callerDevice)
+      .mockResolvedValueOnce({ id: deviceId, name: 'My Phone', createdAt: new Date(), lastSeenAt: new Date() });
 
-    const res = await request(app).get(`/devices/${deviceId}`);
+    const res = await request(app).get(`/devices/${deviceId}`).set('X-Device-Id', callerId);
     expect(res.status).toBe(200);
     expect(res.body.id).toBe(deviceId);
   });
 
+  it('returns 401 when no X-Device-Id header', async () => {
+    const res = await request(app).get('/devices/some-id');
+    expect(res.status).toBe(401);
+  });
+
   it('returns 404 when device not found', async () => {
-    (prisma.device.findUnique as jest.Mock).mockResolvedValue(null);
-    const res = await request(app).get('/devices/nonexistent');
+    (prisma.device.findUnique as jest.Mock)
+      .mockResolvedValueOnce(callerDevice)
+      .mockResolvedValueOnce(null);
+    const res = await request(app).get('/devices/nonexistent').set('X-Device-Id', callerId);
     expect(res.status).toBe(404);
   });
 });
