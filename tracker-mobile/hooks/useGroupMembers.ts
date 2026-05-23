@@ -14,6 +14,7 @@ export function useGroupMembers(groupId: string) {
   const refresh = useCallback(() => {
     fetchGroupMembers(groupId)
       .then(setMembers)
+      .catch(() => setMembers([]))
       .finally(() => setLoading(false));
   }, [groupId]);
 

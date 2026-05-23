@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useGroup, useGroupBalances, useInviteMember, useRemoveMember } from '../hooks/useGroups';
+import {
+  useGroup, useGroupBalances, useGroupActivity,
+  useSettleMembers, useInviteMember, useRemoveMember,
+} from '../hooks/useGroups';
 import { useExpenses } from '../hooks/useExpenses';
 import { useAuthStore } from '../stores/auth.store';
 import { Button } from '../components/ui/button';
@@ -10,14 +13,44 @@ import { Label } from '../components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
 import { CurrencySelect } from '../components/CurrencySelect';
 import { useCurrencyRate } from '../hooks/useCurrencyRate';
+import { DebtVisualization } from '../components/DebtVisualization';
 
-type Tab = 'expenses' | 'members' | 'balances';
+type Tab = 'expenses' | 'members' | 'balances' | 'history';
 
-function formatBalance(balance: number, currency: string) {
-  const abs = Math.abs(balance).toFixed(2);
-  if (balance > 0) return `+${abs} ${currency}`;
-  if (balance < 0) return `-${abs} ${currency}`;
-  return `0.00 ${currency}`;
+// Bit (ביט) and Paybox payment app links
+function PayLinks({ amount, currency }: { amount: number; currency: string }) {
+  const { t } = useTranslation();
+  const label = `${amount.toFixed(2)} ${currency}`;
+  return (
+    <div className="flex items-center gap-1.5 text-xs">
+      <span className="text-slate-400">{t('groupDetail.payWith')}:</span>
+      <a
+        href={`https://www.bitpay.co.il/app/pay?amount=${amount}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={`Bit – ${label}`}
+        className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#7B2FBE] text-white font-semibold hover:opacity-80 transition-opacity"
+      >
+        ביט
+      </a>
+      <a
+        href="https://payboxapp.page.link/pay"
+        target="_blank"
+        rel="noopener noreferrer"
+        title={`Paybox – ${label}`}
+        className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F5A623] text-white font-semibold hover:opacity-80 transition-opacity"
+      >
+        Paybox
+      </a>
+    </div>
+  );
+}
+
+function activityIcon(type: string) {
+  if (type === 'EXPENSE_CREATED') return '🧾';
+  if (type === 'SPLIT_SETTLED') return '✅';
+  if (type === 'MEMBER_JOINED') return '👤';
+  return '•';
 }
 
 export function GroupDetailPage() {
@@ -25,6 +58,8 @@ export function GroupDetailPage() {
   const { id = '' } = useParams<{ id: string }>();
   const { data: group, isLoading } = useGroup(id);
   const { data: balances } = useGroupBalances(id);
+  const { data: activity } = useGroupActivity(id);
+  const settleMembers = useSettleMembers(id);
   const { data: expensesPage } = useExpenses(id);
   const inviteMember = useInviteMember(id);
   const removeMember = useRemoveMember(id);
@@ -34,6 +69,9 @@ export function GroupDetailPage() {
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteError, setInviteError] = useState('');
   const [viewCurrency, setViewCurrency] = useState('');
+
+  // Must be unconditional — called before early returns
+  const { data: convRate } = useCurrencyRate(group?.defaultCurrency ?? '', viewCurrency);
 
   async function handleInvite(e: React.FormEvent) {
     e.preventDefault();
@@ -47,18 +85,17 @@ export function GroupDetailPage() {
     }
   }
 
-  useEffect(() => {
-    if (group && !viewCurrency) setViewCurrency(group.defaultCurrency);
-  }, [group, viewCurrency]);
-
-  const { data: convRate } = useCurrencyRate(group?.defaultCurrency ?? '', viewCurrency);
-
   if (isLoading) return <div className="p-6 text-slate-400">{t('groupDetail.loading')}</div>;
   if (!group) return <div className="p-6 text-red-600">{t('groupDetail.notFound')}</div>;
 
-  const isAdmin = group.members.find((m) => m.userId === currentUserId)?.role === 'ADMIN';
+  if (!viewCurrency && group.defaultCurrency) setViewCurrency(group.defaultCurrency);
 
-  const TABS: Tab[] = ['expenses', 'members', 'balances'];
+  const isAdmin = group.members.find((m) => m.userId === currentUserId)?.role === 'ADMIN';
+  const TABS: Tab[] = ['expenses', 'members', 'balances', 'history'];
+
+  const rate = convRate?.rate ?? 1;
+  const displayCurrency = viewCurrency || group.defaultCurrency;
+  const showConversion = viewCurrency && viewCurrency !== group.defaultCurrency;
 
   return (
     <div className="max-w-3xl mx-auto p-6">
@@ -72,12 +109,12 @@ export function GroupDetailPage() {
         </div>
       </div>
 
-      <div className="flex gap-1 mb-6 border-b border-slate-200">
+      <div className="flex gap-1 mb-6 border-b border-slate-200 overflow-x-auto">
         {TABS.map((tabKey) => (
           <button
             key={tabKey}
             onClick={() => setTab(tabKey)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-4 py-2 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
               tab === tabKey
                 ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-slate-500 hover:text-slate-900'
@@ -88,6 +125,7 @@ export function GroupDetailPage() {
         ))}
       </div>
 
+      {/* ── EXPENSES ── */}
       {tab === 'expenses' && (
         <div>
           <div className="flex justify-end mb-4">
@@ -102,28 +140,45 @@ export function GroupDetailPage() {
             <p className="text-center text-slate-400 py-8">{t('groupDetail.noExpenses')}</p>
           ) : (
             <div className="space-y-2">
-              {expensesPage?.expenses.map((expense) => (
-                <Link
-                  key={expense.id}
-                  to={`/expenses/${expense.id}`}
-                  className="flex items-center justify-between p-4 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
-                >
-                  <div>
-                    <p className="font-medium text-slate-900">{expense.description}</p>
-                    <p className="text-sm text-slate-500">
-                      {t('groupDetail.paidBy', { name: expense.paidBy.name })} · {expense.date}
-                    </p>
-                  </div>
-                  <span className="font-semibold text-expense">
-                    {expense.amount.toFixed(2)} {expense.currency}
-                  </span>
-                </Link>
-              ))}
+              {expensesPage?.expenses.map((expense) => {
+                const allSettled = expense.splits.length > 0 && expense.splits.every((s) => s.isSettled);
+                return (
+                  <Link
+                    key={expense.id}
+                    to={`/expenses/${expense.id}`}
+                    className={`flex items-center justify-between p-4 rounded-lg border transition-colors ${
+                      allSettled
+                        ? 'border-green-200 bg-green-50 hover:bg-green-100'
+                        : 'border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className={`font-medium ${allSettled ? 'text-income' : 'text-slate-900'}`}>
+                          {expense.description}
+                        </p>
+                        {allSettled && (
+                          <span className="text-xs bg-green-100 text-income px-2 py-0.5 rounded-full">
+                            {t('expense.settled')}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-slate-500">
+                        {t('groupDetail.paidBy', { name: expense.paidBy.name })} · {expense.date}
+                      </p>
+                    </div>
+                    <span className={`font-semibold ${allSettled ? 'text-income' : 'text-expense'}`}>
+                      {expense.amount.toFixed(2)} {expense.currency}
+                    </span>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
       )}
 
+      {/* ── MEMBERS ── */}
       {tab === 'members' && (
         <div>
           {isAdmin && (
@@ -177,6 +232,7 @@ export function GroupDetailPage() {
         </div>
       )}
 
+      {/* ── BALANCES ── */}
       {tab === 'balances' && (
         <div>
           <div className="flex items-center gap-3 mb-4">
@@ -188,21 +244,104 @@ export function GroupDetailPage() {
           {!balances?.length ? (
             <p className="text-center text-slate-400 py-8">{t('groupDetail.noBalances')}</p>
           ) : (
-            <div className="space-y-2">
-              {balances.map((b) => {
-                const rate = convRate?.rate ?? 1;
-                const converted = b.balance * rate;
-                const displayCurrency = viewCurrency || group.defaultCurrency;
+            <>
+              <div className="space-y-3">
+                {balances.map((b, i) => {
+                  const converted = b.amount * rate;
+                  const canSettle =
+                    b.fromUserId === currentUserId ||
+                    b.toUserId === currentUserId ||
+                    isAdmin;
+                  return (
+                    <div key={i} className="p-4 rounded-xl border border-slate-200 bg-white space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="font-medium text-slate-900">{b.fromName}</span>
+                          <span className="text-slate-400">→</span>
+                          <span className="font-medium text-slate-900">{b.toName}</span>
+                        </div>
+                        <div className="text-end">
+                          <p className="font-semibold text-expense">
+                            {converted.toFixed(2)} {displayCurrency}
+                          </p>
+                          {showConversion && (
+                            <p className="text-xs text-slate-400">
+                              {b.amount.toFixed(2)} {b.currency}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <PayLinks amount={converted} currency={displayCurrency} />
+                        {canSettle && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={settleMembers.isPending}
+                            onClick={() => settleMembers.mutate({ fromUserId: b.fromUserId, toUserId: b.toUserId })}
+                          >
+                            {t('groupDetail.settleUp')}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <DebtVisualization
+                balances={balances}
+                members={group.members}
+                currency={displayCurrency}
+              />
+            </>
+          )}
+        </div>
+      )}
+
+      {/* ── HISTORY ── */}
+      {tab === 'history' && (
+        <div>
+          {!activity?.length ? (
+            <p className="text-center text-slate-400 py-8">{t('groupDetail.noHistory')}</p>
+          ) : (
+            <div className="space-y-1">
+              {activity.map((item) => {
+                let text = '';
+                if (item.type === 'EXPENSE_CREATED') {
+                  text = t('groupDetail.activityExpenseCreated', { description: item.description });
+                } else if (item.type === 'SPLIT_SETTLED') {
+                  text = t('groupDetail.activitySplitSettled', { description: item.description });
+                } else if (item.type === 'MEMBER_JOINED') {
+                  text = t('groupDetail.activityMemberJoined');
+                }
+                const dateStr = new Date(item.date).toLocaleDateString(undefined, {
+                  day: '2-digit', month: 'short', year: 'numeric',
+                });
+                const timeStr = new Date(item.date).toLocaleTimeString(undefined, {
+                  hour: '2-digit', minute: '2-digit',
+                });
                 return (
-                  <div key={b.userId} className="flex items-center justify-between p-3 rounded-lg border border-slate-200">
-                    <p className="font-medium text-slate-900">{b.name}</p>
-                    <div className="text-end">
-                      <span className={`font-semibold ${converted > 0 ? 'text-income' : converted < 0 ? 'text-expense' : 'text-slate-500'}`}>
-                        {formatBalance(converted, displayCurrency)}
-                      </span>
-                      {viewCurrency && viewCurrency !== group.defaultCurrency && (
-                        <p className="text-xs text-slate-400">{formatBalance(b.balance, group.defaultCurrency)}</p>
+                  <div key={item.id} className="flex items-start gap-3 py-2.5 border-b border-slate-100 last:border-0">
+                    <span className="text-lg leading-none mt-0.5">{activityIcon(item.type)}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-slate-900">
+                        <span className="font-medium">{item.actorName}</span>{' '}{text}
+                        {item.amount != null && item.currency && (
+                          <span className="ms-1 font-semibold text-expense">
+                            {item.amount.toFixed(2)} {item.currency}
+                          </span>
+                        )}
+                      </p>
+                      {item.expenseId && (
+                        <Link to={`/expenses/${item.expenseId}`} className="text-xs text-blue-500 hover:underline">
+                          {item.description}
+                        </Link>
                       )}
+                    </div>
+                    <div className="text-end shrink-0">
+                      <p className="text-xs text-slate-500">{dateStr}</p>
+                      <p className="text-xs text-slate-400">{timeStr}</p>
                     </div>
                   </div>
                 );

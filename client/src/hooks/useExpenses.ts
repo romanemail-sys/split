@@ -79,3 +79,31 @@ export function useDeleteExpense() {
     },
   });
 }
+
+export function useAllExpenses(page = 1, limit = 20) {
+  return useQuery<ExpensesPage>({
+    queryKey: ['expenses', 'all', page, limit],
+    queryFn: async () => {
+      const { data } = await api.get('/expenses', { params: { page, limit } });
+      return data;
+    },
+  });
+}
+
+export function useSettleSplit(expenseId: string, groupId?: string) {
+  const qc = useQueryClient();
+  return useMutation<{ groupId: string }, Error, string>({
+    mutationFn: async (splitId) => {
+      const { data } = await api.patch(`/expenses/${expenseId}/splits/${splitId}/settle`);
+      return data;
+    },
+    onSuccess: (data) => {
+      const gid = groupId ?? data.groupId;
+      qc.invalidateQueries({ queryKey: ['expenses', expenseId] });
+      if (gid) {
+        qc.invalidateQueries({ queryKey: ['groups', gid, 'balances'] });
+        qc.invalidateQueries({ queryKey: ['groups', gid, 'activity'] });
+      }
+    },
+  });
+}

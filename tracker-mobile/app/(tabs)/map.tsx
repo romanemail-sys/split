@@ -12,16 +12,17 @@ interface LocationPoint {
 }
 
 export default function MapScreen() {
-  const { deviceId } = useDeviceStore();
+  const { deviceId, ready } = useDeviceStore();
   const [points, setPoints] = useState<LocationPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!deviceId) return;
+    if (!ready || !deviceId) return;
     fetchLocationHistory(deviceId)
       .then(setPoints)
+      .catch(() => setPoints([]))
       .finally(() => setLoading(false));
-  }, [deviceId]);
+  }, [ready, deviceId]);
 
   if (loading) return <ActivityIndicator style={styles.loader} />;
 

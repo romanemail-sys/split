@@ -42,8 +42,15 @@ TaskManager.defineTask(
 );
 
 export async function startLocationTracking(intervalSeconds: number) {
-  const { status } = await Location.requestBackgroundPermissionsAsync();
-  if (status !== 'granted') throw new Error('Background location permission denied');
+  // Request foreground first — required before background on iOS
+  const { status: fg } = await Location.requestForegroundPermissionsAsync();
+  if (fg !== 'granted') throw new Error('Foreground location permission denied');
+
+  // Background permission — not available in Expo Go on Android; best-effort
+  const { status } = await Location.requestBackgroundPermissionsAsync().catch(() => ({ status: 'denied' as const }));
+  if (status !== 'granted') {
+    console.warn('Background location not granted — tracking will only work while app is open');
+  }
 
   const running = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME).catch(() => false);
   if (running) await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME);

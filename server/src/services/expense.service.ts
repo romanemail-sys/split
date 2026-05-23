@@ -45,6 +45,7 @@ type ExpenseWithRelations = PrismaExpense & {
   paidBy: { id: string; name: string; avatarUrl: string | null };
   splits: SplitWithUser[];
   category: Category | null;
+  group?: { id: string; name: string } | null;
 };
 
 function toExpenseDTO(e: ExpenseWithRelations) {
@@ -75,6 +76,7 @@ function toExpenseDTO(e: ExpenseWithRelations) {
       user: s.user,
     })),
     category: e.category,
+    group: e.group ?? undefined,
   };
 }
 
@@ -128,6 +130,7 @@ const expenseInclude = {
   paidBy: { select: { id: true, name: true, avatarUrl: true } },
   splits: { include: { user: { select: { id: true, name: true, avatarUrl: true } } } },
   category: true,
+  group: { select: { id: true, name: true } },
 } satisfies Prisma.ExpenseInclude;
 
 export async function createExpense(requesterId: string, data: CreateExpenseData) {
@@ -222,6 +225,39 @@ export async function updateExpense(expenseId: string, userId: string, data: Upd
   return toExpenseDTO(expense as ExpenseWithRelations);
 }
 
+export async function settleSplit(expenseId: string, splitId: string, requesterId: string) {
+  const expense = await prisma.expense.findUnique({ where: { id: expenseId } });
+  if (!expense) throw new Error('EXPENSE_NOT_FOUND');
+
+  const split = await prisma.expenseSplit.findUnique({ where: { id: splitId } });
+  if (!split || split.expenseId !== expenseId) throw new Error('EXPENSE_NOT_FOUND');
+
+  const member = await prisma.groupMember.findUnique({
+    where: { groupId_userId: { groupId: expense.groupId, userId: requesterId } },
+  });
+  if (!member) throw new Error('NOT_MEMBER');
+
+  const canSettle = split.userId === requesterId || expense.paidById === requesterId || member.role === 'ADMIN';
+  if (!canSettle) throw new Error('FORBIDDEN');
+
+  const updated = await prisma.expenseSplit.update({
+    where: { id: splitId },
+    data: { isSettled: true, settledAt: new Date() },
+    include: { user: { select: { id: true, name: true, avatarUrl: true } } },
+  });
+
+  return {
+    id: updated.id,
+    expenseId: updated.expenseId,
+    groupId: expense.groupId,
+    userId: updated.userId,
+    amount: Number(updated.amount),
+    isSettled: updated.isSettled,
+    settledAt: updated.settledAt?.toISOString() ?? null,
+    user: updated.user,
+  };
+}
+
 export async function deleteExpense(expenseId: string, userId: string): Promise<void> {
   const expense = await prisma.expense.findUnique({ where: { id: expenseId } });
   if (!expense) throw new Error('EXPENSE_NOT_FOUND');
@@ -252,6 +288,32 @@ export async function listExpenses(
       take: limit,
     }),
     prisma.expense.count({ where: { groupId } }),
+  ]);
+
+  return {
+    expenses: expenses.map((e) => toExpenseDTO(e as ExpenseWithRelations)),
+    total,
+    page,
+    limit,
+    hasMore: page * limit < total,
+  };
+}
+
+export async function listAllExpenses(userId: string, page: number, limit: number) {
+  const memberships = await prisma.groupMember.findMany({ where: { userId } });
+  const groupIds = memberships.map((m) => m.groupId);
+
+  if (groupIds.length === 0) return { expenses: [], total: 0, page, limit, hasMore: false };
+
+  const [expenses, total] = await Promise.all([
+    prisma.expense.findMany({
+      where: { groupId: { in: groupIds } },
+      include: expenseInclude,
+      orderBy: { date: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    prisma.expense.count({ where: { groupId: { in: groupIds } } }),
   ]);
 
   return {

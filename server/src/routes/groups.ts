@@ -6,7 +6,8 @@ import {
   createGroup, getGroup, listGroups, updateGroup, deleteGroup,
   addMember, removeMember, listMembers,
 } from '../services/group.service';
-import { computeGroupBalances } from '../services/balance.service';
+import { computeGroupBalances, settleMembers } from '../services/balance.service';
+import { getGroupActivity } from '../services/activity.service';
 
 const router = Router();
 router.use(requireAuth);
@@ -117,6 +118,30 @@ router.get('/:id/balances', async (req: Request, res: Response) => {
     await getGroup(req.params.id, userId(req));
     const balances = await computeGroupBalances(req.params.id);
     res.json(balances);
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+const settleMembersSchema = z.object({
+  fromUserId: z.string(),
+  toUserId: z.string(),
+});
+
+router.post('/:id/settle-members', validate(settleMembersSchema), async (req: Request, res: Response) => {
+  try {
+    const result = await settleMembers(req.params.id, req.body.fromUserId, req.body.toUserId, userId(req));
+    res.json(result);
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+router.get('/:id/activity', async (req: Request, res: Response) => {
+  try {
+    await getGroup(req.params.id, userId(req));
+    const activity = await getGroupActivity(req.params.id);
+    res.json(activity);
   } catch (err) {
     handleError(res, err);
   }

@@ -37,6 +37,7 @@ export interface Expense {
   paidBy: { id: string; name: string; avatarUrl: string | null };
   splits: ExpenseSplit[];
   category?: Category | null;
+  group?: { id: string; name: string };
 }
 
 export interface SplitInput {

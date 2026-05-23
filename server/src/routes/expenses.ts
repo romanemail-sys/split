@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { validate } from '../middleware/validate';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
 import {
-  createExpense, getExpense, updateExpense, deleteExpense, listExpenses,
+  createExpense, getExpense, updateExpense, deleteExpense, listExpenses, listAllExpenses, settleSplit,
 } from '../services/expense.service';
 
 const router = Router();
@@ -70,18 +70,20 @@ function handleError(res: Response, err: unknown) {
 
 router.get('/', async (req: Request, res: Response) => {
   const parsed = z.object({
-    groupId: z.string(),
+    groupId: z.string().optional(),
     page: z.coerce.number().int().positive().default(1),
     limit: z.coerce.number().int().positive().max(100).default(20),
   }).safeParse(req.query);
 
   if (!parsed.success) {
-    res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'groupId is required' } });
+    res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Invalid query params' } });
     return;
   }
 
   try {
-    const result = await listExpenses(userId(req), parsed.data.groupId, parsed.data.page, parsed.data.limit);
+    const result = parsed.data.groupId
+      ? await listExpenses(userId(req), parsed.data.groupId, parsed.data.page, parsed.data.limit)
+      : await listAllExpenses(userId(req), parsed.data.page, parsed.data.limit);
     res.json(result);
   } catch (err) {
     handleError(res, err);
@@ -110,6 +112,15 @@ router.put('/:id', validate(updateExpenseSchema), async (req: Request, res: Resp
   try {
     const expense = await updateExpense(req.params.id, userId(req), req.body);
     res.json(expense);
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+router.patch('/:id/splits/:splitId/settle', async (req: Request, res: Response) => {
+  try {
+    const split = await settleSplit(req.params.id, req.params.splitId, userId(req));
+    res.json(split);
   } catch (err) {
     handleError(res, err);
   }

@@ -22,10 +22,11 @@ const forgotSchema = z.object({ email: z.string().email() });
 const resetSchema = z.object({ token: z.string(), password: z.string().min(6) });
 
 function setRefreshCookie(res: Response, token: string): void {
+  const isProd = process.env.NODE_ENV === 'production';
   res.cookie('refreshToken', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'strict',
     maxAge: 30 * 24 * 60 * 60 * 1000,
   });
 }

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import type {
-  GroupWithMembers, GroupMember, GroupBalance,
+  GroupWithMembers, GroupMember, GroupBalance, ActivityItem,
   CreateGroupRequest, UpdateGroupRequest,
 } from '@split/shared';
 
@@ -80,6 +80,32 @@ export function useInviteMember(groupId: string) {
       return data;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['groups', groupId] }),
+  });
+}
+
+export function useGroupActivity(groupId: string) {
+  return useQuery<ActivityItem[]>({
+    queryKey: ['groups', groupId, 'activity'],
+    queryFn: async () => {
+      const { data } = await api.get(`/groups/${groupId}/activity`);
+      return data;
+    },
+    enabled: !!groupId,
+  });
+}
+
+export function useSettleMembers(groupId: string) {
+  const qc = useQueryClient();
+  return useMutation<{ settled: number }, Error, { fromUserId: string; toUserId: string }>({
+    mutationFn: async (body) => {
+      const { data } = await api.post(`/groups/${groupId}/settle-members`, body);
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['groups', groupId, 'balances'] });
+      qc.invalidateQueries({ queryKey: ['expenses', groupId] });
+      qc.invalidateQueries({ queryKey: ['groups', groupId, 'activity'] });
+    },
   });
 }
 

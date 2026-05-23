@@ -41,8 +41,27 @@ export interface UpdateGroupRequest {
 }
 
 export interface GroupBalance {
-  userId: string;
-  name: string;
-  avatarUrl: string | null;
-  balance: number;
+  fromUserId: string;
+  fromName: string;
+  fromAvatarUrl: string | null;
+  toUserId: string;
+  toName: string;
+  toAvatarUrl: string | null;
+  amount: number;
+  currency: string;
+}
+
+export type ActivityType = 'EXPENSE_CREATED' | 'SPLIT_SETTLED' | 'MEMBER_JOINED' | 'MEMBER_REMOVED';
+
+export interface ActivityItem {
+  type: ActivityType;
+  id: string;
+  date: string;
+  actorName: string;
+  actorId: string;
+  description: string;
+  amount?: number;
+  currency?: string;
+  expenseId?: string;
+  targetName?: string;
 }

@@ -7,13 +7,14 @@
     "scheme": "location-tracker",
     "platforms": ["ios", "android"],
     "ios": {
+      "bundleIdentifier": "com.romanp.locationtracker",
+      "supportsTablet": true,
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Used to record your location history.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Used to record location in the background.",
         "UIBackgroundModes": ["location", "fetch"]
       }
     },
     "android": {
+      "package": "com.romanp.locationtracker",
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_BACKGROUND_LOCATION",
@@ -25,6 +26,15 @@
         "expo-router",
         {
           "root": "./app"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Used to record your location history.",
+          "locationAlwaysAndWhenInUsePermission": "Used to record your location in the background so your route is tracked while the app is closed.",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true
         }
       ]
     ]

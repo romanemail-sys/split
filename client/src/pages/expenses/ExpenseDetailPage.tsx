@@ -1,6 +1,6 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useExpense, useDeleteExpense } from '../../hooks/useExpenses';
+import { useExpense, useDeleteExpense, useSettleSplit } from '../../hooks/useExpenses';
 import { useAuthStore } from '../../stores/auth.store';
 import { useGroup } from '../../hooks/useGroups';
 import { Button } from '../../components/ui/button';
@@ -13,22 +13,27 @@ export function ExpenseDetailPage() {
   const { data: expense, isLoading } = useExpense(id);
   const { data: group } = useGroup(expense?.groupId ?? '');
   const deleteExpense = useDeleteExpense();
+  const settleSplit = useSettleSplit(id, expense?.groupId);
   const currentUserId = useAuthStore((s) => s.user?.id);
+
+  // Must be called unconditionally — before any early returns
+  const { data: rateData } = useCurrencyRate(
+    expense?.currency ?? '',
+    expense?.baseCurrency ?? ''
+  );
 
   if (isLoading) return <div className="p-6 text-slate-400">{t('expense.loading')}</div>;
   if (!expense) return <div className="p-6 text-red-600">{t('expense.notFound')}</div>;
 
   const isAdmin = group?.members.find((m) => m.userId === currentUserId)?.role === 'ADMIN';
   const canEdit = expense.paidById === currentUserId || isAdmin;
+  const currencyMismatch = expense.currency !== expense.baseCurrency;
 
   async function handleDelete() {
     if (!confirm(t('expense.confirmDelete'))) return;
     await deleteExpense.mutateAsync({ expenseId: expense!.id, groupId: expense!.groupId });
     navigate(`/groups/${expense!.groupId}`);
   }
-
-  const currencyMismatch = expense.currency !== expense.baseCurrency;
-  const { data: rateData } = useCurrencyRate(expense.currency, expense.baseCurrency);
 
   return (
     <div className="max-w-lg mx-auto p-6">
@@ -76,6 +81,7 @@ export function ExpenseDetailPage() {
           </div>
         )}
       </div>
+
       {currencyMismatch && rateData && (
         <div className="mt-2 text-xs text-slate-400 text-end">
           {t('expense.exchangeRate', {
@@ -89,19 +95,38 @@ export function ExpenseDetailPage() {
       <div className="mt-6">
         <h2 className="font-semibold mb-3 text-slate-900">{t('expense.splits')}</h2>
         <div className="space-y-2">
-          {expense.splits.map((split) => (
-            <div key={split.id} className="flex justify-between items-center p-3 rounded-lg border border-slate-200">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-slate-900">{split.user?.name ?? split.userId}</span>
-                {split.isSettled && (
-                  <span className="text-xs bg-green-100 text-income px-2 py-0.5 rounded-full">{t('expense.settled')}</span>
-                )}
+          {expense.splits.map((split) => {
+            const canSettle = !split.isSettled && (
+              split.userId === currentUserId ||
+              expense.paidById === currentUserId ||
+              isAdmin
+            );
+            return (
+              <div key={split.id} className="flex justify-between items-center p-3 rounded-lg border border-slate-200">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-slate-900">{split.user?.name ?? split.userId}</span>
+                  {split.isSettled && (
+                    <span className="text-xs bg-green-100 text-income px-2 py-0.5 rounded-full">{t('expense.settled')}</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`text-sm font-semibold ${split.isSettled ? 'text-income' : 'text-expense'}`}>
+                    {split.amount.toFixed(2)} {expense.baseCurrency}
+                  </span>
+                  {canSettle && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={settleSplit.isPending}
+                      onClick={() => settleSplit.mutate(split.id)}
+                    >
+                      {settleSplit.isPending ? t('expense.settling') : t('expense.settleSplit')}
+                    </Button>
+                  )}
+                </div>
               </div>
-              <span className={`text-sm font-semibold ${split.isSettled ? 'text-income' : 'text-expense'}`}>
-                {split.amount.toFixed(2)} {expense.baseCurrency}
-              </span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
