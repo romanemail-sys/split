@@ -19,16 +19,20 @@ type MemberWithUser = GroupMember & {
 
 type GroupWithMembers = Group & { members: MemberWithUser[] };
 
+type GroupExtended = Group & { inviteCode?: string; frozen?: boolean };
+
 function toGroupDTO(group: Group) {
+  const g = group as GroupExtended;
   return {
-    id: group.id,
-    name: group.name,
-    description: group.description,
-    imageUrl: group.imageUrl,
-    defaultCurrency: group.defaultCurrency,
-    createdById: group.createdById,
-    createdAt: group.createdAt.toISOString(),
-    inviteCode: (group as Group & { inviteCode?: string }).inviteCode ?? null,
+    id: g.id,
+    name: g.name,
+    description: g.description,
+    imageUrl: g.imageUrl,
+    defaultCurrency: g.defaultCurrency,
+    createdById: g.createdById,
+    createdAt: g.createdAt.toISOString(),
+    inviteCode: g.inviteCode ?? null,
+    frozen: g.frozen ?? false,
   };
 }
 
@@ -281,4 +285,76 @@ export async function resetInviteCode(groupId: string, requesterId: string) {
     data: { inviteCode: randomUUID() },
   });
   return { inviteCode: group.inviteCode };
+}
+
+/** Member: leave a group. If last admin with other members, auto-promotes the longest-standing member. */
+export async function leaveGroup(groupId: string, userId: string) {
+  const membership = await prisma.groupMember.findUnique({
+    where: { groupId_userId: { groupId, userId } },
+  });
+  if (!membership) throw new Error('NOT_MEMBER');
+
+  const allMembers = await prisma.groupMember.findMany({
+    where: { groupId },
+    orderBy: { joinedAt: 'asc' },
+  });
+
+  if (allMembers.length === 1) {
+    // Last member — just remove
+    await prisma.groupMember.delete({ where: { groupId_userId: { groupId, userId } } });
+    return { left: true };
+  }
+
+  if (membership.role === 'ADMIN') {
+    const otherAdmins = allMembers.filter((m) => m.userId !== userId && m.role === 'ADMIN');
+    if (otherAdmins.length === 0) {
+      // Promote the earliest-joined non-self member
+      const nextAdmin = allMembers.find((m) => m.userId !== userId);
+      if (nextAdmin) {
+        await prisma.groupMember.update({
+          where: { groupId_userId: { groupId, userId: nextAdmin.userId } },
+          data: { role: 'ADMIN' },
+        });
+      }
+    }
+  }
+
+  await prisma.groupMember.delete({ where: { groupId_userId: { groupId, userId } } });
+  return { left: true };
+}
+
+// ── Admin group management ─────────────────────────────────────────────────
+
+export async function adminListGroups() {
+  const groups = await prisma.group.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: { _count: { select: { members: true, expenses: true } } },
+  });
+  return groups.map((g) => ({
+    ...toGroupDTO(g),
+    memberCount: g._count.members,
+    expenseCount: g._count.expenses,
+  }));
+}
+
+export async function adminFreezeGroup(groupId: string, freeze: boolean) {
+  const group = await prisma.group.findUnique({ where: { id: groupId } });
+  if (!group) throw new Error('GROUP_NOT_FOUND');
+  const updated = await prisma.group.update({
+    where: { id: groupId },
+    data: { frozen: freeze },
+  });
+  return toGroupDTO(updated);
+}
+
+export async function adminDeleteGroup(groupId: string) {
+  const group = await prisma.group.findUnique({ where: { id: groupId } });
+  if (!group) throw new Error('GROUP_NOT_FOUND');
+  // Cascade deletes members, expenses, splits via DB onDelete: Cascade
+  await prisma.group.delete({ where: { id: groupId } });
+  return { deleted: true };
+}
+
+export async function adminCreateGroup(userId: string, data: CreateGroupData) {
+  return createGroup(userId, data);
 }

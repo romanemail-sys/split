@@ -175,3 +175,16 @@ export function useRemoveMember(groupId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['groups', groupId] }),
   });
 }
+
+export function useLeaveGroup(groupId: string) {
+  const qc = useQueryClient();
+  return useMutation<{ left: boolean }, Error, void>({
+    mutationFn: async () => {
+      const { data } = await api.delete(`/groups/${groupId}/members/me`);
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['groups'] });
+    },
+  });
+}

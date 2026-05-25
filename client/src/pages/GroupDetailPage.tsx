@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   useGroup, useGroupBalances, useGroupActivity,
-  useSettleMembers, useInviteMember, useRemoveMember, useInviteCandidates, useDuplicateGroup,
+  useSettleMembers, useInviteMember, useRemoveMember, useInviteCandidates, useDuplicateGroup, useLeaveGroup,
 } from '../hooks/useGroups';
 import { useExpenses } from '../hooks/useExpenses';
 import { useAuthStore } from '../stores/auth.store';
@@ -57,6 +57,7 @@ function activityIcon(type: string) {
 export function GroupDetailPage() {
   const { t } = useTranslation();
   const { id = '' } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { data: group, isLoading } = useGroup(id);
   const { data: balances } = useGroupBalances(id);
   const { data: activity } = useGroupActivity(id);
@@ -73,9 +74,11 @@ export function GroupDetailPage() {
   const [inviteError, setInviteError] = useState('');
   const { data: inviteCandidates = [] } = useInviteCandidates(id, inviteSearch);
   const duplicateGroup = useDuplicateGroup();
+  const leaveGroup = useLeaveGroup(id);
   const [dupOpen, setDupOpen] = useState(false);
   const [dupName, setDupName] = useState('');
   const [dupError, setDupError] = useState('');
+  const [leaveConfirm, setLeaveConfirm] = useState(false);
   const [viewCurrency, setViewCurrency] = useState('');
 
   // Must be unconditional — called before early returns
@@ -125,6 +128,16 @@ export function GroupDetailPage() {
     }
   }
 
+  async function handleLeave() {
+    try {
+      await leaveGroup.mutateAsync();
+      navigate('/groups');
+    } catch {
+      // ignore – user stays on page
+    }
+    setLeaveConfirm(false);
+  }
+
   if (isLoading) return <div className="p-6 text-slate-400">{t('groupDetail.loading')}</div>;
   if (!group) return <div className="p-6 text-red-600">{t('groupDetail.notFound')}</div>;
 
@@ -149,16 +162,43 @@ export function GroupDetailPage() {
             {group.description && <p className="text-slate-500 text-sm">{group.description}</p>}
           </div>
         </div>
-        {isAdmin && (
+        <div className="flex items-center gap-2 shrink-0">
+          {isAdmin && (
+            <button
+              onClick={() => { setDupName(`${group.name} (copy)`); setDupOpen(true); }}
+              className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+              title={t('groupDetail.duplicateGroup')}
+            >
+              📋 {t('groupDetail.duplicate')}
+            </button>
+          )}
           <button
-            onClick={() => { setDupName(`${group.name} (copy)`); setDupOpen(true); }}
-            className="shrink-0 text-xs px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
-            title={t('groupDetail.duplicateGroup')}
+            onClick={() => setLeaveConfirm(true)}
+            className="text-xs px-3 py-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors"
           >
-            📋 {t('groupDetail.duplicate')}
+            🚪 {t('groupDetail.leaveGroup')}
           </button>
-        )}
+        </div>
       </div>
+
+      {/* Leave group confirm dialog */}
+      <Dialog open={leaveConfirm} onOpenChange={setLeaveConfirm}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>{t('groupDetail.leaveGroupTitle')}</DialogTitle></DialogHeader>
+          <p className="text-sm text-slate-500">{t('groupDetail.leaveGroupDesc', { name: group.name })}</p>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setLeaveConfirm(false)}>{t('expense.cancel')}</Button>
+            <Button
+              type="button"
+              onClick={handleLeave}
+              disabled={leaveGroup.isPending}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {leaveGroup.isPending ? t('groupDetail.leaving') : t('groupDetail.leaveConfirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Duplicate group dialog */}
       <Dialog open={dupOpen} onOpenChange={(o) => { setDupOpen(o); if (!o) { setDupName(''); setDupError(''); } }}>

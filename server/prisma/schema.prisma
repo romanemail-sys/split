@@ -41,6 +41,7 @@ model Group {
   createdById     String
   createdAt       DateTime  @default(now())
   inviteCode      String    @unique @default(uuid())
+  frozen          Boolean   @default(false)
 
   createdBy       User          @relation("GroupCreator", fields: [createdById], references: [id])
   members         GroupMember[]

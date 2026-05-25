@@ -6,6 +6,7 @@
     "analytics": "Аналитика",
     "notifications": "Уведомления",
     "admin": "Админ",
+    "settings": "Настройки",
     "logout": "Выход"
   },
   "groups": {
@@ -65,7 +66,12 @@
     "duplicateName": "Название новой группы",
     "duplicateConfirm": "Дублировать",
     "duplicating": "Дублирование…",
-    "duplicateFailed": "Не удалось дублировать группу."
+    "duplicateFailed": "Не удалось дублировать группу.",
+    "leaveGroup": "Выйти",
+    "leaveGroupTitle": "Выйти из группы",
+    "leaveGroupDesc": "Вы уверены, что хотите покинуть «{{name}}»? Вы сможете вступить снова позже.",
+    "leaveConfirm": "Выйти",
+    "leaving": "Выход…"
   },
   "expense": {
     "addExpense": "Добавить расход",
@@ -169,12 +175,14 @@
   },
   "admin": {
     "title": "Панель администратора",
+    "tabUsers": "Пользователи",
+    "tabGroups": "Группы",
     "users": "Пользователи",
     "addUser": "Добавить пользователя",
     "name": "Полное имя",
     "email": "Email",
     "password": "Пароль",
-    "create": "Создать пользователя",
+    "create": "Создать",
     "creating": "Создание…",
     "status": "Статус",
     "statusActive": "Активен",
@@ -183,6 +191,8 @@
     "activate": "Активировать",
     "adminBadge": "Админ",
     "createdAt": "Дата регистрации",
+    "members": "Участников",
+    "expenses": "Расходов",
     "failedCreate": "Не удалось создать пользователя. Email уже может быть занят.",
     "failedToggle": "Не удалось обновить статус пользователя.",
     "setPassword": "Установить пароль",
@@ -190,7 +200,32 @@
     "passwordUpdated": "Пароль обновлён",
     "failedSetPassword": "Не удалось обновить пароль.",
     "saving": "Сохранение…",
-    "save": "Сохранить"
+    "save": "Сохранить",
+    "addGroup": "Добавить группу",
+    "frozen": "Заморожена",
+    "freeze": "Заморозить",
+    "unfreeze": "Разморозить",
+    "deleteGroup": "Удалить",
+    "confirmDeleteGroup": "Удалить группу «{{name}}» со всеми данными? Отменить нельзя.",
+    "groupCreateFailed": "Не удалось создать группу.",
+    "sendReport": "Отправить отчёт по балансам",
+    "sending": "Отправка…",
+    "reportSent": "Отчёт отправлен {{sent}} пользователям ({{errors}} ошибок)."
+  },
+  "settings": {
+    "title": "Настройки",
+    "changePassword": "Изменить пароль",
+    "currentPassword": "Текущий пароль",
+    "newPassword": "Новый пароль",
+    "confirmPassword": "Подтвердите новый пароль",
+    "savePassword": "Обновить пароль",
+    "saving": "Сохранение…",
+    "passwordChanged": "Пароль успешно обновлён.",
+    "wrongPassword": "Текущий пароль неверен.",
+    "passwordMismatch": "Пароли не совпадают.",
+    "passwordTooShort": "Пароль должен содержать не менее 6 символов.",
+    "noPasswordAccount": "Этот аккаунт использует вход через Google и не имеет пароля.",
+    "changeFailed": "Не удалось обновить пароль. Попробуйте ещё раз."
   },
   "share": {
     "title": "Пригласить в группу",

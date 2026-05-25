@@ -6,6 +6,7 @@
     "analytics": "Analytics",
     "notifications": "Notifications",
     "admin": "Admin",
+    "settings": "Settings",
     "logout": "Logout"
   },
   "groups": {
@@ -69,7 +70,12 @@
     "duplicateName": "New group name",
     "duplicateConfirm": "Duplicate",
     "duplicating": "Duplicating…",
-    "duplicateFailed": "Could not duplicate the group."
+    "duplicateFailed": "Could not duplicate the group.",
+    "leaveGroup": "Leave",
+    "leaveGroupTitle": "Leave Group",
+    "leaveGroupDesc": "Are you sure you want to leave «{{name}}»? You can re-join later.",
+    "leaveConfirm": "Leave",
+    "leaving": "Leaving…"
   },
   "expense": {
     "addExpense": "Add Expense",
@@ -173,12 +179,14 @@
   },
   "admin": {
     "title": "Admin Panel",
+    "tabUsers": "Users",
+    "tabGroups": "Groups",
     "users": "Users",
     "addUser": "Add User",
     "name": "Full Name",
     "email": "Email",
     "password": "Password",
-    "create": "Create User",
+    "create": "Create",
     "creating": "Creating…",
     "status": "Status",
     "statusActive": "Active",
@@ -187,6 +195,8 @@
     "activate": "Activate",
     "adminBadge": "Admin",
     "createdAt": "Joined",
+    "members": "Members",
+    "expenses": "Expenses",
     "failedCreate": "Failed to create user. Email may already be in use.",
     "failedToggle": "Failed to update user status.",
     "setPassword": "Set Password",
@@ -194,7 +204,32 @@
     "passwordUpdated": "Password updated",
     "failedSetPassword": "Failed to update password.",
     "saving": "Saving…",
-    "save": "Save"
+    "save": "Save",
+    "addGroup": "Add Group",
+    "frozen": "Frozen",
+    "freeze": "Freeze",
+    "unfreeze": "Unfreeze",
+    "deleteGroup": "Delete",
+    "confirmDeleteGroup": "Delete group «{{name}}» and all its data? This cannot be undone.",
+    "groupCreateFailed": "Failed to create group.",
+    "sendReport": "Send Balance Report",
+    "sending": "Sending…",
+    "reportSent": "Report sent to {{sent}} users ({{errors}} errors)."
+  },
+  "settings": {
+    "title": "Settings",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "savePassword": "Update Password",
+    "saving": "Saving…",
+    "passwordChanged": "Password updated successfully.",
+    "wrongPassword": "Current password is incorrect.",
+    "passwordMismatch": "Passwords do not match.",
+    "passwordTooShort": "Password must be at least 6 characters.",
+    "noPasswordAccount": "This account uses Google sign-in and has no password.",
+    "changeFailed": "Failed to update password. Try again."
   },
   "share": {
     "title": "Invite to Group",

@@ -16,6 +16,7 @@ export default function Sidebar() {
     { to: '/analytics', icon: '📊', label: t('nav.analytics') },
     { to: '/notifications', icon: '🔔', label: t('nav.notifications') },
     ...(user?.isAdmin ? [{ to: '/admin', icon: '🛡️', label: t('nav.admin') }] : []),
+    { to: '/settings', icon: '⚙️', label: t('nav.settings') },
   ];
 
   return (

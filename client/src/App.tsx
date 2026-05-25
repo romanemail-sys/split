@@ -18,6 +18,7 @@ import { AnalyticsPage } from './pages/AnalyticsPage';
 import { JoinGroupPage } from './pages/JoinGroupPage';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { AdminPage } from './pages/admin/AdminPage';
+import { SettingsPage } from './pages/SettingsPage';
 
 function NotFoundPage() {
   const { t } = useTranslation();
@@ -63,6 +64,7 @@ export default function App() {
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="notifications" element={<NotificationsPage />} />
           <Route path="admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

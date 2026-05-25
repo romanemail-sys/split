@@ -135,3 +135,19 @@ export async function verifyEmail(token: string): Promise<void> {
     data: { emailVerified: true, verifyEmailToken: null },
   });
 }
+
+export async function changePassword(
+  userId: string,
+  currentPassword: string,
+  newPassword: string
+): Promise<void> {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw new Error('USER_NOT_FOUND');
+  if (!user.passwordHash) throw new Error('NO_PASSWORD'); // OAuth-only accounts
+
+  const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!valid) throw new Error('WRONG_PASSWORD');
+
+  const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
+  await prisma.user.update({ where: { id: userId }, data: { passwordHash } });
+}

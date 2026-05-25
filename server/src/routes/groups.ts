@@ -5,7 +5,7 @@ import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
 import {
   createGroup, getGroup, listGroups, updateGroup, deleteGroup,
   addMember, removeMember, listMembers, searchInviteCandidates, duplicateGroup,
-  lookupGroup, joinGroup, resetInviteCode,
+  lookupGroup, joinGroup, resetInviteCode, leaveGroup,
 } from '../services/group.service';
 import { computeGroupBalances, settleMembers } from '../services/balance.service';
 import { getGroupActivity } from '../services/activity.service';
@@ -197,6 +197,16 @@ router.get('/:id/activity', async (req: Request, res: Response) => {
     await getGroup(req.params.id, userId(req));
     const activity = await getGroupActivity(req.params.id);
     res.json(activity);
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+// Leave a group
+router.delete('/:id/members/me', async (req: Request, res: Response) => {
+  try {
+    const result = await leaveGroup(req.params.id, userId(req));
+    res.json(result);
   } catch (err) {
     handleError(res, err);
   }

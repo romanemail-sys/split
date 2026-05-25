@@ -6,6 +6,7 @@
     "analytics": "ניתוח",
     "notifications": "התראות",
     "admin": "ניהול",
+    "settings": "הגדרות",
     "logout": "התנתק"
   },
   "groups": {
@@ -65,7 +66,12 @@
     "duplicateName": "שם הקבוצה החדשה",
     "duplicateConfirm": "שכפל",
     "duplicating": "משכפל…",
-    "duplicateFailed": "שכפול הקבוצה נכשל."
+    "duplicateFailed": "שכפול הקבוצה נכשל.",
+    "leaveGroup": "עזוב",
+    "leaveGroupTitle": "עזיבת קבוצה",
+    "leaveGroupDesc": "האם אתה בטוח שברצונך לעזוב את «{{name}}»? תוכל להצטרף שוב מאוחר יותר.",
+    "leaveConfirm": "עזוב",
+    "leaving": "עוזב…"
   },
   "expense": {
     "addExpense": "הוסף הוצאה",
@@ -169,12 +175,14 @@
   },
   "admin": {
     "title": "פאנל ניהול",
+    "tabUsers": "משתמשים",
+    "tabGroups": "קבוצות",
     "users": "משתמשים",
     "addUser": "הוסף משתמש",
     "name": "שם מלא",
     "email": "אימייל",
     "password": "סיסמה",
-    "create": "צור משתמש",
+    "create": "צור",
     "creating": "יוצר…",
     "status": "סטטוס",
     "statusActive": "פעיל",
@@ -183,6 +191,8 @@
     "activate": "הפעל",
     "adminBadge": "מנהל",
     "createdAt": "הצטרף",
+    "members": "חברים",
+    "expenses": "הוצאות",
     "failedCreate": "לא ניתן ליצור משתמש. כתובת האימייל אולי כבר בשימוש.",
     "failedToggle": "עדכון סטטוס המשתמש נכשל.",
     "setPassword": "הגדר סיסמה",
@@ -190,7 +200,32 @@
     "passwordUpdated": "הסיסמה עודכנה",
     "failedSetPassword": "עדכון הסיסמה נכשל.",
     "saving": "שומר…",
-    "save": "שמור"
+    "save": "שמור",
+    "addGroup": "הוסף קבוצה",
+    "frozen": "קפוא",
+    "freeze": "הקפא",
+    "unfreeze": "בטל הקפאה",
+    "deleteGroup": "מחק",
+    "confirmDeleteGroup": "למחוק את הקבוצה «{{name}}» וכל הנתונים שלה? לא ניתן לבטל.",
+    "groupCreateFailed": "יצירת הקבוצה נכשלה.",
+    "sendReport": "שלח דו\"ח יתרות",
+    "sending": "שולח…",
+    "reportSent": "הדו\"ח נשלח ל-{{sent}} משתמשים ({{errors}} שגיאות)."
+  },
+  "settings": {
+    "title": "הגדרות",
+    "changePassword": "שינוי סיסמה",
+    "currentPassword": "סיסמה נוכחית",
+    "newPassword": "סיסמה חדשה",
+    "confirmPassword": "אישור סיסמה חדשה",
+    "savePassword": "עדכן סיסמה",
+    "saving": "שומר…",
+    "passwordChanged": "הסיסמה עודכנה בהצלחה.",
+    "wrongPassword": "הסיסמה הנוכחית שגויה.",
+    "passwordMismatch": "הסיסמאות אינן תואמות.",
+    "passwordTooShort": "הסיסמה חייבת להכיל לפחות 6 תווים.",
+    "noPasswordAccount": "חשבון זה משתמש בכניסה דרך Google ואין לו סיסמה.",
+    "changeFailed": "עדכון הסיסמה נכשל. נסה שוב."
   },
   "share": {
     "title": "הזמנה לקבוצה",

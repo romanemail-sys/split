@@ -25,6 +25,7 @@ export default function MobileNav() {
     { to: '/analytics', icon: '📊', label: t('nav.analytics') },
     { to: '/notifications', icon: '🔔', label: t('nav.notifications') },
     ...(user?.isAdmin ? [{ to: '/admin', icon: '🛡️', label: t('nav.admin') }] : []),
+    { to: '/settings', icon: '⚙️', label: t('nav.settings') },
   ];
 
   const activeItem = navItems.find((item) => location.pathname.startsWith(item.to));
@@ -79,6 +80,14 @@ export default function MobileNav() {
                 <span>{t('nav.admin')}</span>
               </NavLink>
             )}
+            <NavLink
+              to="/settings"
+              onClick={() => setDrawerOpen(false)}
+              className="flex items-center gap-2 text-sm text-slate-300 hover:text-white"
+            >
+              <span>⚙️</span>
+              <span>{t('nav.settings')}</span>
+            </NavLink>
             <button
               onClick={() => { setDrawerOpen(false); logout.mutate(); }}
               className="flex items-center gap-2 text-sm text-slate-300 hover:text-white"
