@@ -109,20 +109,25 @@ export function GroupDetailPage() {
         </div>
       </div>
 
-      <div className="flex gap-1 mb-6 border-b border-slate-200 overflow-x-auto">
-        {TABS.map((tabKey) => (
-          <button
-            key={tabKey}
-            onClick={() => setTab(tabKey)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
-              tab === tabKey
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-slate-500 hover:text-slate-900'
-            }`}
-          >
-            {t(`groupDetail.tabs.${tabKey}`)}
-          </button>
-        ))}
+      <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+        <div className="flex gap-1 border-b border-slate-200 overflow-x-auto flex-1">
+          {TABS.map((tabKey) => (
+            <button
+              key={tabKey}
+              onClick={() => setTab(tabKey)}
+              className={`px-4 py-2 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
+                tab === tabKey
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              {t(`groupDetail.tabs.${tabKey}`)}
+            </button>
+          ))}
+        </div>
+        <div className="w-40 shrink-0">
+          <CurrencySelect value={viewCurrency} onChange={setViewCurrency} />
+        </div>
       </div>
 
       {/* ── EXPENSES ── */}
@@ -167,9 +172,16 @@ export function GroupDetailPage() {
                         {t('groupDetail.paidBy', { name: expense.paidBy.name })} · {expense.date}
                       </p>
                     </div>
-                    <span className={`font-semibold ${allSettled ? 'text-income' : 'text-expense'}`}>
-                      {expense.amount.toFixed(2)} {expense.currency}
-                    </span>
+                    <div className="text-end">
+                      <p className={`font-semibold ${allSettled ? 'text-income' : 'text-expense'}`}>
+                        {(expense.amountBase * rate).toFixed(2)} {displayCurrency}
+                      </p>
+                      {showConversion && (
+                        <p className="text-xs text-slate-400">
+                          {expense.amount.toFixed(2)} {expense.currency}
+                        </p>
+                      )}
+                    </div>
                   </Link>
                 );
               })}
@@ -235,12 +247,6 @@ export function GroupDetailPage() {
       {/* ── BALANCES ── */}
       {tab === 'balances' && (
         <div>
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-sm text-slate-500">{t('groupDetail.viewIn')}</span>
-            <div className="w-52">
-              <CurrencySelect value={viewCurrency} onChange={setViewCurrency} />
-            </div>
-          </div>
           {!balances?.length ? (
             <p className="text-center text-slate-400 py-8">{t('groupDetail.noBalances')}</p>
           ) : (
