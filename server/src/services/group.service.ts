@@ -148,6 +148,47 @@ export async function listMembers(groupId: string, userId: string) {
   return (members as unknown as MemberWithUser[]).map(toMemberDTO);
 }
 
+export async function duplicateGroup(groupId: string, requesterId: string, newName: string) {
+  await requireAdmin(groupId, requesterId);
+
+  const source = await prisma.group.findUnique({
+    where: { id: groupId },
+    include: { members: true },
+  });
+  if (!source) throw new Error('GROUP_NOT_FOUND');
+
+  const newGroup = await prisma.$transaction(async (tx) => {
+    const group = await tx.group.create({
+      data: {
+        name: newName,
+        description: source.description,
+        defaultCurrency: source.defaultCurrency,
+        createdById: requesterId,
+      },
+    });
+
+    await tx.groupMember.createMany({
+      data: source.members.map((m) => ({
+        groupId: group.id,
+        userId: m.userId,
+        role: m.userId === requesterId ? 'ADMIN' : m.role,
+      })),
+    });
+
+    return tx.group.findUnique({
+      where: { id: group.id },
+      include: {
+        members: {
+          include: { user: { select: { id: true, name: true, email: true, avatarUrl: true } } },
+        },
+      },
+    });
+  });
+
+  const g = newGroup as GroupWithMembers;
+  return { ...toGroupDTO(g), members: g.members.map(toMemberDTO) };
+}
+
 export async function searchInviteCandidates(groupId: string, requesterId: string, query: string) {
   await requireAdmin(groupId, requesterId);
 

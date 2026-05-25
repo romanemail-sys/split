@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   useGroup, useGroupBalances, useGroupActivity,
-  useSettleMembers, useInviteMember, useRemoveMember, useInviteCandidates,
+  useSettleMembers, useInviteMember, useRemoveMember, useInviteCandidates, useDuplicateGroup,
 } from '../hooks/useGroups';
 import { useExpenses } from '../hooks/useExpenses';
 import { useAuthStore } from '../stores/auth.store';
@@ -71,6 +71,10 @@ export function GroupDetailPage() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [inviteError, setInviteError] = useState('');
   const { data: inviteCandidates = [] } = useInviteCandidates(id, inviteSearch);
+  const duplicateGroup = useDuplicateGroup();
+  const [dupOpen, setDupOpen] = useState(false);
+  const [dupName, setDupName] = useState('');
+  const [dupError, setDupError] = useState('');
   const [viewCurrency, setViewCurrency] = useState('');
 
   // Must be unconditional — called before early returns
@@ -108,6 +112,18 @@ export function GroupDetailPage() {
     if (!open) { setInviteSearch(''); setSelectedUser(null); setInviteError(''); setShowDropdown(false); }
   }
 
+  async function handleDuplicate(e: React.FormEvent) {
+    e.preventDefault();
+    setDupError('');
+    try {
+      await duplicateGroup.mutateAsync({ groupId: id, name: dupName });
+      setDupOpen(false);
+      setDupName('');
+    } catch {
+      setDupError(t('groupDetail.duplicateFailed'));
+    }
+  }
+
   if (isLoading) return <div className="p-6 text-slate-400">{t('groupDetail.loading')}</div>;
   if (!group) return <div className="p-6 text-red-600">{t('groupDetail.notFound')}</div>;
 
@@ -122,15 +138,47 @@ export function GroupDetailPage() {
 
   return (
     <div className="max-w-3xl mx-auto p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl">
-          {group.name[0].toUpperCase()}
+      <div className="flex items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl">
+            {group.name[0].toUpperCase()}
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">{group.name}</h1>
+            {group.description && <p className="text-slate-500 text-sm">{group.description}</p>}
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">{group.name}</h1>
-          {group.description && <p className="text-slate-500 text-sm">{group.description}</p>}
-        </div>
+        {isAdmin && (
+          <button
+            onClick={() => { setDupName(`${group.name} (copy)`); setDupOpen(true); }}
+            className="shrink-0 text-xs px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+            title={t('groupDetail.duplicateGroup')}
+          >
+            📋 {t('groupDetail.duplicate')}
+          </button>
+        )}
       </div>
+
+      {/* Duplicate group dialog */}
+      <Dialog open={dupOpen} onOpenChange={(o) => { setDupOpen(o); if (!o) { setDupName(''); setDupError(''); } }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>{t('groupDetail.duplicateGroup')}</DialogTitle></DialogHeader>
+          <form onSubmit={handleDuplicate} className="space-y-4">
+            <p className="text-sm text-slate-500">{t('groupDetail.duplicateDesc', { name: group.name })}</p>
+            <div className="space-y-1">
+              <Label htmlFor="dup-name">{t('groupDetail.duplicateName')}</Label>
+              <Input id="dup-name" value={dupName} onChange={(e) => setDupName(e.target.value)} required autoFocus />
+            </div>
+            {dupError && <p className="text-sm text-red-600">{dupError}</p>}
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setDupOpen(false)}>{t('expense.cancel')}</Button>
+              <Button type="submit" disabled={duplicateGroup.isPending || !dupName.trim()}>
+                {duplicateGroup.isPending ? t('groupDetail.duplicating') : t('groupDetail.duplicateConfirm')}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
         <div className="flex gap-1 border-b border-slate-200 overflow-x-auto flex-1">

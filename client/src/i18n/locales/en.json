@@ -61,7 +61,14 @@
     "vizSaved_other": "saves {{count}} steps",
     "vizSaved": "saves {{count}} steps",
     "vizPlan": "Settlement order",
-    "vizAllSettled": "All debts are settled ✓"
+    "vizAllSettled": "All debts are settled ✓",
+    "duplicate": "Duplicate",
+    "duplicateGroup": "Duplicate Group",
+    "duplicateDesc": "A new group will be created with the same members as «{{name}}», but no expenses.",
+    "duplicateName": "New group name",
+    "duplicateConfirm": "Duplicate",
+    "duplicating": "Duplicating…",
+    "duplicateFailed": "Could not duplicate the group."
   },
   "expense": {
     "addExpense": "Add Expense",
@@ -180,7 +187,13 @@
     "adminBadge": "Admin",
     "createdAt": "Joined",
     "failedCreate": "Failed to create user. Email may already be in use.",
-    "failedToggle": "Failed to update user status."
+    "failedToggle": "Failed to update user status.",
+    "setPassword": "Set Password",
+    "newPasswordPlaceholder": "New password (min 6 chars)",
+    "passwordUpdated": "Password updated",
+    "failedSetPassword": "Failed to update password.",
+    "saving": "Saving…",
+    "save": "Save"
   },
   "common": {
     "loading": "Loading…",

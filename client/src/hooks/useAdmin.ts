@@ -34,3 +34,10 @@ export function useToggleUserActive() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'users'] }),
   });
 }
+
+export function useSetUserPassword() {
+  return useMutation<UserAdminDTO, Error, { userId: string; password: string }>({
+    mutationFn: ({ userId, password }) =>
+      api.patch(`/admin/users/${userId}/set-password`, { password }).then((r) => r.data),
+  });
+}

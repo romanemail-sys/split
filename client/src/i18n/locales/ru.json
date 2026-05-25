@@ -57,7 +57,14 @@
     "vizTxCount": "{{count}} транзакций",
     "vizSaved": "экономит {{count}} шагов",
     "vizPlan": "Порядок расчётов",
-    "vizAllSettled": "Все долги погашены ✓"
+    "vizAllSettled": "Все долги погашены ✓",
+    "duplicate": "Дублировать",
+    "duplicateGroup": "Дублировать группу",
+    "duplicateDesc": "Будет создана новая группа с теми же участниками, что и «{{name}}», без расходов.",
+    "duplicateName": "Название новой группы",
+    "duplicateConfirm": "Дублировать",
+    "duplicating": "Дублирование…",
+    "duplicateFailed": "Не удалось дублировать группу."
   },
   "expense": {
     "addExpense": "Добавить расход",
@@ -176,7 +183,13 @@
     "adminBadge": "Админ",
     "createdAt": "Дата регистрации",
     "failedCreate": "Не удалось создать пользователя. Email уже может быть занят.",
-    "failedToggle": "Не удалось обновить статус пользователя."
+    "failedToggle": "Не удалось обновить статус пользователя.",
+    "setPassword": "Установить пароль",
+    "newPasswordPlaceholder": "Новый пароль (мин. 6 символов)",
+    "passwordUpdated": "Пароль обновлён",
+    "failedSetPassword": "Не удалось обновить пароль.",
+    "saving": "Сохранение…",
+    "save": "Сохранить"
   },
   "common": {
     "loading": "Загрузка…",

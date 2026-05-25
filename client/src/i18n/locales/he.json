@@ -57,7 +57,14 @@
     "vizTxCount": "{{count}} עסקאות",
     "vizSaved": "חוסך {{count}} שלבים",
     "vizPlan": "סדר ההתחשבנות",
-    "vizAllSettled": "כל החובות סולקו ✓"
+    "vizAllSettled": "כל החובות סולקו ✓",
+    "duplicate": "שכפל",
+    "duplicateGroup": "שכפול קבוצה",
+    "duplicateDesc": "תיווצר קבוצה חדשה עם אותם חברים כמו «{{name}}», ללא הוצאות.",
+    "duplicateName": "שם הקבוצה החדשה",
+    "duplicateConfirm": "שכפל",
+    "duplicating": "משכפל…",
+    "duplicateFailed": "שכפול הקבוצה נכשל."
   },
   "expense": {
     "addExpense": "הוסף הוצאה",
@@ -176,7 +183,13 @@
     "adminBadge": "מנהל",
     "createdAt": "הצטרף",
     "failedCreate": "לא ניתן ליצור משתמש. כתובת האימייל אולי כבר בשימוש.",
-    "failedToggle": "עדכון סטטוס המשתמש נכשל."
+    "failedToggle": "עדכון סטטוס המשתמש נכשל.",
+    "setPassword": "הגדר סיסמה",
+    "newPasswordPlaceholder": "סיסמה חדשה (לפחות 6 תווים)",
+    "passwordUpdated": "הסיסמה עודכנה",
+    "failedSetPassword": "עדכון הסיסמה נכשל.",
+    "saving": "שומר…",
+    "save": "שמור"
   },
   "common": {
     "loading": "טוען…",

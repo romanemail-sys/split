@@ -4,7 +4,7 @@ import { validate } from '../middleware/validate';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
 import {
   createGroup, getGroup, listGroups, updateGroup, deleteGroup,
-  addMember, removeMember, listMembers, searchInviteCandidates,
+  addMember, removeMember, listMembers, searchInviteCandidates, duplicateGroup,
 } from '../services/group.service';
 import { computeGroupBalances, settleMembers } from '../services/balance.service';
 import { getGroupActivity } from '../services/activity.service';
@@ -81,6 +81,16 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     await deleteGroup(req.params.id, userId(req));
     res.status(204).send();
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+const duplicateGroupSchema = z.object({ name: z.string().min(1).max(100) });
+router.post('/:id/duplicate', validate(duplicateGroupSchema), async (req: Request, res: Response) => {
+  try {
+    const group = await duplicateGroup(req.params.id, userId(req), req.body.name);
+    res.status(201).json(group);
   } catch (err) {
     handleError(res, err);
   }

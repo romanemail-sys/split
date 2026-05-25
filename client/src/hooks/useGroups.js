@@ -61,6 +61,16 @@ export function useDeleteGroup() {
         onSuccess: () => qc.invalidateQueries({ queryKey: ['groups'] }),
     });
 }
+export function useDuplicateGroup() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ groupId, name }) => {
+            const { data } = await api.post(`/groups/${groupId}/duplicate`, { name });
+            return data;
+        },
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['groups'] }),
+    });
+}
 export function useInviteCandidates(groupId, query) {
     return useQuery({
         queryKey: ['groups', groupId, 'invite-candidates', query],

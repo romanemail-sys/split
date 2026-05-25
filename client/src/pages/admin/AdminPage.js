@@ -1,8 +1,8 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../stores/auth.store';
-import { useAdminUsers, useCreateUser, useToggleUserActive } from '../../hooks/useAdmin';
+import { useAdminUsers, useCreateUser, useToggleUserActive, useSetUserPassword } from '../../hooks/useAdmin';
 function StatusBadge({ isActive }) {
     const { t } = useTranslation();
     return (_jsx("span", { className: `inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`, children: isActive ? t('admin.statusActive') : t('admin.statusInactive') }));
@@ -25,17 +25,38 @@ function AddUserModal({ onClose }) {
     }
     return (_jsx("div", { className: "fixed inset-0 z-50 flex items-center justify-center bg-black/40", children: _jsxs("div", { className: "bg-white rounded-xl shadow-xl w-full max-w-md p-6", children: [_jsx("h2", { className: "text-lg font-bold text-slate-900 mb-4", children: t('admin.addUser') }), _jsxs("form", { onSubmit: handleSubmit, className: "space-y-3", children: [_jsxs("div", { children: [_jsx("label", { className: "block text-sm font-medium text-slate-700 mb-1", children: t('admin.name') }), _jsx("input", { type: "text", required: true, value: form.name, onChange: (e) => setForm((f) => ({ ...f, name: e.target.value })), className: "w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" })] }), _jsxs("div", { children: [_jsx("label", { className: "block text-sm font-medium text-slate-700 mb-1", children: t('admin.email') }), _jsx("input", { type: "email", required: true, value: form.email, onChange: (e) => setForm((f) => ({ ...f, email: e.target.value })), className: "w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" })] }), _jsxs("div", { children: [_jsx("label", { className: "block text-sm font-medium text-slate-700 mb-1", children: t('admin.password') }), _jsx("input", { type: "text", required: true, minLength: 6, value: form.password, onChange: (e) => setForm((f) => ({ ...f, password: e.target.value })), className: "w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" })] }), error && _jsx("p", { className: "text-sm text-red-600", children: error }), _jsxs("div", { className: "flex justify-end gap-2 pt-2", children: [_jsx("button", { type: "button", onClick: onClose, className: "px-4 py-2 text-sm rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50", children: t('expense.cancel') }), _jsx("button", { type: "submit", disabled: createUser.isPending, className: "px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50", children: createUser.isPending ? t('admin.creating') : t('admin.create') })] })] })] }) }));
 }
+function SetPasswordModal({ user, onClose }) {
+    const { t } = useTranslation();
+    const setPassword = useSetUserPassword();
+    const [password, setPassword_] = useState('');
+    const [error, setError] = useState('');
+    const [done, setDone] = useState(false);
+    async function handleSubmit(e) {
+        e.preventDefault();
+        setError('');
+        try {
+            await setPassword.mutateAsync({ userId: user.id, password });
+            setDone(true);
+            setTimeout(onClose, 1200);
+        }
+        catch {
+            setError(t('admin.failedSetPassword'));
+        }
+    }
+    return (_jsx("div", { className: "fixed inset-0 z-50 flex items-center justify-center bg-black/40", children: _jsxs("div", { className: "bg-white rounded-xl shadow-xl w-full max-w-sm p-6", children: [_jsx("h2", { className: "text-lg font-bold text-slate-900 mb-1", children: t('admin.setPassword') }), _jsxs("p", { className: "text-sm text-slate-500 mb-4", children: [user.name, " \u00B7 ", user.email] }), done ? (_jsxs("p", { className: "text-sm text-green-600 font-medium text-center py-2", children: ["\u2713 ", t('admin.passwordUpdated')] })) : (_jsxs("form", { onSubmit: handleSubmit, className: "space-y-3", children: [_jsx("input", { type: "text", required: true, minLength: 6, autoFocus: true, value: password, onChange: (e) => setPassword_(e.target.value), placeholder: t('admin.newPasswordPlaceholder'), className: "w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" }), error && _jsx("p", { className: "text-sm text-red-600", children: error }), _jsxs("div", { className: "flex justify-end gap-2 pt-1", children: [_jsx("button", { type: "button", onClick: onClose, className: "px-4 py-2 text-sm rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50", children: t('expense.cancel') }), _jsx("button", { type: "submit", disabled: setPassword.isPending || password.length < 6, className: "px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50", children: setPassword.isPending ? t('admin.saving') : t('admin.save') })] })] }))] }) }));
+}
 function UserRow({ user }) {
     const { t } = useTranslation();
     const currentUser = useAuthStore((s) => s.user);
     const toggle = useToggleUserActive();
     const isSelf = currentUser?.id === user.id;
+    const [showSetPwd, setShowSetPwd] = useState(false);
     const date = new Date(user.createdAt).toLocaleDateString(undefined, {
         day: '2-digit', month: 'short', year: 'numeric',
     });
-    return (_jsxs("tr", { className: "border-t border-slate-100 hover:bg-slate-50", children: [_jsxs("td", { className: "px-4 py-3 text-sm text-slate-900", children: [user.name, user.isAdmin && (_jsx("span", { className: "ms-2 text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-medium", children: t('admin.adminBadge') }))] }), _jsx("td", { className: "px-4 py-3 text-sm text-slate-600", children: user.email }), _jsx("td", { className: "px-4 py-3", children: _jsx(StatusBadge, { isActive: user.isActive }) }), _jsx("td", { className: "px-4 py-3 text-xs text-slate-400", children: date }), _jsx("td", { className: "px-4 py-3 text-end", children: _jsx("button", { disabled: isSelf || toggle.isPending, onClick: () => toggle.mutate({ userId: user.id, active: !user.isActive }), className: `text-xs px-3 py-1 rounded-lg font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${user.isActive
-                        ? 'bg-red-50 text-red-600 hover:bg-red-100'
-                        : 'bg-green-50 text-green-600 hover:bg-green-100'}`, children: user.isActive ? t('admin.deactivate') : t('admin.activate') }) })] }));
+    return (_jsxs(_Fragment, { children: [_jsxs("tr", { className: "border-t border-slate-100 hover:bg-slate-50", children: [_jsxs("td", { className: "px-4 py-3 text-sm text-slate-900", children: [user.name, user.isAdmin && (_jsx("span", { className: "ms-2 text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-medium", children: t('admin.adminBadge') }))] }), _jsx("td", { className: "px-4 py-3 text-sm text-slate-600", children: user.email }), _jsx("td", { className: "px-4 py-3", children: _jsx(StatusBadge, { isActive: user.isActive }) }), _jsx("td", { className: "px-4 py-3 text-xs text-slate-400", children: date }), _jsx("td", { className: "px-4 py-3 text-end", children: _jsxs("div", { className: "flex items-center justify-end gap-2", children: [_jsx("button", { onClick: () => setShowSetPwd(true), className: "text-xs px-3 py-1 rounded-lg font-medium bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors", children: t('admin.setPassword') }), _jsx("button", { disabled: isSelf || toggle.isPending, onClick: () => toggle.mutate({ userId: user.id, active: !user.isActive }), className: `text-xs px-3 py-1 rounded-lg font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${user.isActive
+                                        ? 'bg-red-50 text-red-600 hover:bg-red-100'
+                                        : 'bg-green-50 text-green-600 hover:bg-green-100'}`, children: user.isActive ? t('admin.deactivate') : t('admin.activate') })] }) })] }), showSetPwd && _jsx(SetPasswordModal, { user: user, onClose: () => setShowSetPwd(false) })] }));
 }
 export function AdminPage() {
     const { t } = useTranslation();

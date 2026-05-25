@@ -2,7 +2,7 @@ import { jsxs as _jsxs, jsx as _jsx, Fragment as _Fragment } from "react/jsx-run
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useGroup, useGroupBalances, useGroupActivity, useSettleMembers, useInviteMember, useRemoveMember, useInviteCandidates, } from '../hooks/useGroups';
+import { useGroup, useGroupBalances, useGroupActivity, useSettleMembers, useInviteMember, useRemoveMember, useInviteCandidates, useDuplicateGroup, } from '../hooks/useGroups';
 import { useExpenses } from '../hooks/useExpenses';
 import { useAuthStore } from '../stores/auth.store';
 import { Button } from '../components/ui/button';
@@ -45,6 +45,10 @@ export function GroupDetailPage() {
     const [showDropdown, setShowDropdown] = useState(false);
     const [inviteError, setInviteError] = useState('');
     const { data: inviteCandidates = [] } = useInviteCandidates(id, inviteSearch);
+    const duplicateGroup = useDuplicateGroup();
+    const [dupOpen, setDupOpen] = useState(false);
+    const [dupName, setDupName] = useState('');
+    const [dupError, setDupError] = useState('');
     const [viewCurrency, setViewCurrency] = useState('');
     // Must be unconditional — called before early returns
     const { data: convRate } = useCurrencyRate(group?.defaultCurrency ?? '', viewCurrency);
@@ -83,6 +87,18 @@ export function GroupDetailPage() {
             setShowDropdown(false);
         }
     }
+    async function handleDuplicate(e) {
+        e.preventDefault();
+        setDupError('');
+        try {
+            await duplicateGroup.mutateAsync({ groupId: id, name: dupName });
+            setDupOpen(false);
+            setDupName('');
+        }
+        catch {
+            setDupError(t('groupDetail.duplicateFailed'));
+        }
+    }
     if (isLoading)
         return _jsx("div", { className: "p-6 text-slate-400", children: t('groupDetail.loading') });
     if (!group)
@@ -94,7 +110,10 @@ export function GroupDetailPage() {
     const rate = convRate?.rate ?? 1;
     const displayCurrency = viewCurrency || group.defaultCurrency;
     const showConversion = viewCurrency && viewCurrency !== group.defaultCurrency;
-    return (_jsxs("div", { className: "max-w-3xl mx-auto p-6", children: [_jsxs("div", { className: "flex items-center gap-3 mb-6", children: [_jsx("div", { className: "w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl", children: group.name[0].toUpperCase() }), _jsxs("div", { children: [_jsx("h1", { className: "text-2xl font-bold text-slate-900", children: group.name }), group.description && _jsx("p", { className: "text-slate-500 text-sm", children: group.description })] })] }), _jsxs("div", { className: "flex items-center justify-between mb-4 gap-3 flex-wrap", children: [_jsx("div", { className: "flex gap-1 border-b border-slate-200 overflow-x-auto flex-1", children: TABS.map((tabKey) => (_jsx("button", { onClick: () => setTab(tabKey), className: `px-4 py-2 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${tab === tabKey
+    return (_jsxs("div", { className: "max-w-3xl mx-auto p-6", children: [_jsxs("div", { className: "flex items-center justify-between gap-3 mb-6", children: [_jsxs("div", { className: "flex items-center gap-3", children: [_jsx("div", { className: "w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl", children: group.name[0].toUpperCase() }), _jsxs("div", { children: [_jsx("h1", { className: "text-2xl font-bold text-slate-900", children: group.name }), group.description && _jsx("p", { className: "text-slate-500 text-sm", children: group.description })] })] }), isAdmin && (_jsxs("button", { onClick: () => { setDupName(`${group.name} (copy)`); setDupOpen(true); }, className: "shrink-0 text-xs px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors", title: t('groupDetail.duplicateGroup'), children: ["\uD83D\uDCCB ", t('groupDetail.duplicate')] }))] }), _jsx(Dialog, { open: dupOpen, onOpenChange: (o) => { setDupOpen(o); if (!o) {
+                    setDupName('');
+                    setDupError('');
+                } }, children: _jsxs(DialogContent, { children: [_jsx(DialogHeader, { children: _jsx(DialogTitle, { children: t('groupDetail.duplicateGroup') }) }), _jsxs("form", { onSubmit: handleDuplicate, className: "space-y-4", children: [_jsx("p", { className: "text-sm text-slate-500", children: t('groupDetail.duplicateDesc', { name: group.name }) }), _jsxs("div", { className: "space-y-1", children: [_jsx(Label, { htmlFor: "dup-name", children: t('groupDetail.duplicateName') }), _jsx(Input, { id: "dup-name", value: dupName, onChange: (e) => setDupName(e.target.value), required: true, autoFocus: true })] }), dupError && _jsx("p", { className: "text-sm text-red-600", children: dupError }), _jsxs(DialogFooter, { children: [_jsx(Button, { type: "button", variant: "outline", onClick: () => setDupOpen(false), children: t('expense.cancel') }), _jsx(Button, { type: "submit", disabled: duplicateGroup.isPending || !dupName.trim(), children: duplicateGroup.isPending ? t('groupDetail.duplicating') : t('groupDetail.duplicateConfirm') })] })] })] }) }), _jsxs("div", { className: "flex items-center justify-between mb-4 gap-3 flex-wrap", children: [_jsx("div", { className: "flex gap-1 border-b border-slate-200 overflow-x-auto flex-1", children: TABS.map((tabKey) => (_jsx("button", { onClick: () => setTab(tabKey), className: `px-4 py-2 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${tab === tabKey
                                 ? 'border-blue-600 text-blue-600'
                                 : 'border-transparent text-slate-500 hover:text-slate-900'}`, children: t(`groupDetail.tabs.${tabKey}`) }, tabKey))) }), _jsx("div", { className: "w-40 shrink-0", children: _jsx(CurrencySelect, { value: viewCurrency, onChange: setViewCurrency }) })] }), tab === 'expenses' && (_jsxs("div", { children: [_jsx("div", { className: "flex justify-end mb-4", children: _jsx(Link, { to: `/expenses/new?groupId=${id}`, className: "inline-flex items-center justify-center rounded-md bg-blue-600 text-white px-4 py-2 text-sm font-medium hover:bg-blue-700 transition-colors", children: t('groupDetail.addExpense') }) }), expensesPage?.expenses.length === 0 ? (_jsx("p", { className: "text-center text-slate-400 py-8", children: t('groupDetail.noExpenses') })) : (_jsx("div", { className: "space-y-2", children: expensesPage?.expenses.map((expense) => {
                             const allSettled = expense.splits.length > 0 && expense.splits.every((s) => s.isSettled);

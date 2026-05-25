@@ -67,6 +67,22 @@ export async function createUser(
   return toAdminDTO(user);
 }
 
+export async function setUserPassword(
+  userId: string,
+  newPassword: string,
+): Promise<UserAdminDTO> {
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: SELECT });
+  if (!user) throw new Error('USER_NOT_FOUND');
+
+  const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
+  const updated = await prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash },
+    select: SELECT,
+  });
+  return toAdminDTO(updated);
+}
+
 export async function setUserActive(
   userId: string,
   active: boolean,

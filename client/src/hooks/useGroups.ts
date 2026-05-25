@@ -72,6 +72,17 @@ export function useDeleteGroup() {
   });
 }
 
+export function useDuplicateGroup() {
+  const qc = useQueryClient();
+  return useMutation<GroupWithMembers, Error, { groupId: string; name: string }>({
+    mutationFn: async ({ groupId, name }) => {
+      const { data } = await api.post(`/groups/${groupId}/duplicate`, { name });
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['groups'] }),
+  });
+}
+
 export function useInviteCandidates(groupId: string, query: string) {
   return useQuery<{ id: string; name: string; email: string; avatarUrl: string | null }[]>({
     queryKey: ['groups', groupId, 'invite-candidates', query],

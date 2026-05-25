@@ -60,14 +60,16 @@ router.get(
     const accessToken = generateAccessToken(user.id);
     const refreshToken = generateRefreshToken(user.id);
 
+    const isProd = process.env.NODE_ENV === 'production';
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'strict',
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
-    res.redirect(`${config.CLIENT_URL}/auth/callback?token=${accessToken}`);
+    // HashRouter needs the hash prefix so the client-side route is matched
+    res.redirect(`${config.CLIENT_URL}/#/auth/callback?token=${accessToken}`);
   }
 );
 
