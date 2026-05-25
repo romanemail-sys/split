@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   useGroup, useGroupBalances, useGroupActivity,
-  useSettleMembers, useInviteMember, useRemoveMember,
+  useSettleMembers, useInviteMember, useRemoveMember, useInviteCandidates,
 } from '../hooks/useGroups';
 import { useExpenses } from '../hooks/useExpenses';
 import { useAuthStore } from '../stores/auth.store';
@@ -66,8 +66,11 @@ export function GroupDetailPage() {
   const currentUserId = useAuthStore((s: { user: { id: string } | null }) => s.user?.id);
   const [tab, setTab] = useState<Tab>('expenses');
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteSearch, setInviteSearch] = useState('');
+  const [selectedUser, setSelectedUser] = useState<{ id: string; name: string; email: string } | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [inviteError, setInviteError] = useState('');
+  const { data: inviteCandidates = [] } = useInviteCandidates(id, inviteSearch);
   const [viewCurrency, setViewCurrency] = useState('');
 
   // Must be unconditional — called before early returns
@@ -76,13 +79,33 @@ export function GroupDetailPage() {
   async function handleInvite(e: React.FormEvent) {
     e.preventDefault();
     setInviteError('');
+    const email = selectedUser ? selectedUser.email : inviteSearch.trim();
+    if (!email) return;
     try {
-      await inviteMember.mutateAsync({ email: inviteEmail });
+      await inviteMember.mutateAsync({ email });
       setInviteOpen(false);
-      setInviteEmail('');
+      setInviteSearch('');
+      setSelectedUser(null);
     } catch {
       setInviteError(t('groupDetail.inviteFailed'));
     }
+  }
+
+  function handleInviteSelect(user: { id: string; name: string; email: string }) {
+    setSelectedUser(user);
+    setInviteSearch(user.name);
+    setShowDropdown(false);
+  }
+
+  function handleInviteSearchChange(val: string) {
+    setInviteSearch(val);
+    setSelectedUser(null);
+    setShowDropdown(true);
+  }
+
+  function handleInviteClose(open: boolean) {
+    setInviteOpen(open);
+    if (!open) { setInviteSearch(''); setSelectedUser(null); setInviteError(''); setShowDropdown(false); }
   }
 
   if (isLoading) return <div className="p-6 text-slate-400">{t('groupDetail.loading')}</div>;
@@ -223,18 +246,51 @@ export function GroupDetailPage() {
             ))}
           </div>
 
-          <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+          <Dialog open={inviteOpen} onOpenChange={handleInviteClose}>
             <DialogContent>
               <DialogHeader><DialogTitle>{t('groupDetail.inviteMember')}</DialogTitle></DialogHeader>
               <form onSubmit={handleInvite} className="space-y-4">
                 <div className="space-y-1">
-                  <Label htmlFor="invite-email">{t('groupDetail.email')}</Label>
-                  <Input id="invite-email" type="email" value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} required />
+                  <Label htmlFor="invite-search">{t('groupDetail.email')}</Label>
+                  <div className="relative">
+                    <Input
+                      id="invite-search"
+                      autoComplete="off"
+                      value={inviteSearch}
+                      onChange={(e) => handleInviteSearchChange(e.target.value)}
+                      onFocus={() => setShowDropdown(true)}
+                      placeholder={t('groupDetail.invitePlaceholder')}
+                    />
+                    {showDropdown && inviteCandidates.length > 0 && (
+                      <ul className="absolute z-50 mt-1 w-full rounded-md border border-slate-200 bg-white shadow-lg max-h-48 overflow-y-auto">
+                        {inviteCandidates.map((u) => (
+                          <li
+                            key={u.id}
+                            className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-slate-50"
+                            onMouseDown={(e) => { e.preventDefault(); handleInviteSelect(u); }}
+                          >
+                            <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-xs font-semibold text-slate-600 shrink-0">
+                              {u.name[0].toUpperCase()}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium text-slate-900 truncate">{u.name}</p>
+                              <p className="text-xs text-slate-500 truncate">{u.email}</p>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  {selectedUser && (
+                    <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
+                      <span>✓</span> {selectedUser.email}
+                    </p>
+                  )}
                 </div>
                 {inviteError && <p className="text-sm text-red-600">{inviteError}</p>}
                 <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setInviteOpen(false)}>{t('expense.cancel')}</Button>
-                  <Button type="submit" disabled={inviteMember.isPending}>
+                  <Button type="button" variant="outline" onClick={() => handleInviteClose(false)}>{t('expense.cancel')}</Button>
+                  <Button type="submit" disabled={inviteMember.isPending || (!selectedUser && !inviteSearch.trim())}>
                     {inviteMember.isPending ? t('groupDetail.inviting') : t('groupDetail.invite')}
                   </Button>
                 </DialogFooter>

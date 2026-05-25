@@ -72,6 +72,18 @@ export function useDeleteGroup() {
   });
 }
 
+export function useInviteCandidates(groupId: string, query: string) {
+  return useQuery<{ id: string; name: string; email: string; avatarUrl: string | null }[]>({
+    queryKey: ['groups', groupId, 'invite-candidates', query],
+    queryFn: async () => {
+      const { data } = await api.get(`/groups/${groupId}/invite-candidates`, { params: { q: query } });
+      return data;
+    },
+    enabled: !!groupId,
+    staleTime: 30_000,
+  });
+}
+
 export function useInviteMember(groupId: string) {
   const qc = useQueryClient();
   return useMutation<GroupMember, Error, { email: string }>({

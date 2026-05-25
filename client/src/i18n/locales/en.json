@@ -42,6 +42,7 @@
     "invite": "Invite",
     "inviting": "Inviting…",
     "inviteFailed": "Could not invite member. Check the email and try again.",
+    "invitePlaceholder": "Search by name or type email…",
     "remove": "Remove",
     "noBalances": "No balances.",
     "viewIn": "View in",

@@ -147,3 +147,33 @@ export async function listMembers(groupId: string, userId: string) {
   });
   return (members as unknown as MemberWithUser[]).map(toMemberDTO);
 }
+
+export async function searchInviteCandidates(groupId: string, requesterId: string, query: string) {
+  await requireAdmin(groupId, requesterId);
+
+  // Get IDs of users already in the group
+  const existing = await prisma.groupMember.findMany({
+    where: { groupId },
+    select: { userId: true },
+  });
+  const existingIds = existing.map((m) => m.userId);
+
+  const q = query.trim();
+  const users = await prisma.user.findMany({
+    where: {
+      id: { notIn: existingIds },
+      isActive: true,
+      ...(q && {
+        OR: [
+          { name: { contains: q, mode: 'insensitive' } },
+          { email: { contains: q, mode: 'insensitive' } },
+        ],
+      }),
+    },
+    select: { id: true, name: true, email: true, avatarUrl: true },
+    take: 20,
+    orderBy: { name: 'asc' },
+  });
+
+  return users;
+}

@@ -4,7 +4,7 @@ import { validate } from '../middleware/validate';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
 import {
   createGroup, getGroup, listGroups, updateGroup, deleteGroup,
-  addMember, removeMember, listMembers,
+  addMember, removeMember, listMembers, searchInviteCandidates,
 } from '../services/group.service';
 import { computeGroupBalances, settleMembers } from '../services/balance.service';
 import { getGroupActivity } from '../services/activity.service';
@@ -90,6 +90,16 @@ router.get('/:id/members', async (req: Request, res: Response) => {
   try {
     const members = await listMembers(req.params.id, userId(req));
     res.json(members);
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+router.get('/:id/invite-candidates', async (req: Request, res: Response) => {
+  try {
+    const q = typeof req.query.q === 'string' ? req.query.q : '';
+    const candidates = await searchInviteCandidates(req.params.id, userId(req), q);
+    res.json(candidates);
   } catch (err) {
     handleError(res, err);
   }

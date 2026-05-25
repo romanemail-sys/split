@@ -1,0 +1,14 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useAuthStore } from '../stores/auth.store';
+import { useDashboard } from '../hooks/useMe';
+function StatCard({ label, value, color }) {
+    return (_jsxs("div", { className: `rounded-xl border p-4 ${color}`, children: [_jsx("p", { className: "text-xs font-medium text-slate-500 mb-1", children: label }), _jsx("p", { className: "text-2xl font-bold text-slate-900", children: value })] }));
+}
+export default function DashboardPage() {
+    const { t } = useTranslation();
+    const user = useAuthStore((s) => s.user);
+    const { data, isLoading } = useDashboard();
+    return (_jsxs("div", { className: "max-w-2xl mx-auto p-6 space-y-6", children: [_jsx("h1", { className: "text-2xl font-bold text-slate-900", children: t('dashboard.greeting', { name: user?.name }) }), _jsxs("div", { className: "grid grid-cols-2 gap-3 sm:grid-cols-4", children: [_jsx(StatCard, { label: t('dashboard.youAreOwed'), value: isLoading ? '…' : `${data?.totalOwed.toFixed(2) ?? '0.00'}`, color: "border-green-200 bg-green-50" }), _jsx(StatCard, { label: t('dashboard.youOwe'), value: isLoading ? '…' : `${data?.totalIOwe.toFixed(2) ?? '0.00'}`, color: "border-red-200 bg-red-50" }), _jsx(StatCard, { label: t('dashboard.groups'), value: isLoading ? '…' : String(data?.groupCount ?? 0), color: "border-blue-200 bg-blue-50" }), _jsx(StatCard, { label: t('dashboard.expenses'), value: isLoading ? '…' : String(data?.expenseCount ?? 0), color: "border-slate-200 bg-slate-50" })] }), _jsxs("div", { children: [_jsx("h2", { className: "text-base font-semibold text-slate-900 mb-3", children: t('dashboard.recentExpenses') }), isLoading && _jsx("p", { className: "text-slate-400 text-sm", children: t('common.loading') }), !isLoading && data?.recentExpenses.length === 0 && (_jsx("p", { className: "text-slate-400 text-sm", children: t('dashboard.noExpenses') })), _jsx("div", { className: "space-y-2", children: data?.recentExpenses.map((e) => (_jsxs(Link, { to: `/expenses/${e.id}`, className: "flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-colors", children: [_jsxs("div", { className: "min-w-0 flex-1", children: [_jsx("p", { className: "text-sm font-medium text-slate-900 truncate", children: e.description }), _jsxs("p", { className: "text-xs text-slate-500 mt-0.5", children: [e.isMyExpense ? t('dashboard.youPaid') : t('dashboard.paidBy', { name: e.paidByName }), ' · ', e.groupName, ' · ', e.date] })] }), _jsxs("span", { className: `ms-3 font-semibold text-sm shrink-0 ${e.isMyExpense ? 'text-income' : 'text-expense'}`, children: [e.amount.toFixed(2), " ", e.currency] })] }, e.id))) })] })] }));
+}
