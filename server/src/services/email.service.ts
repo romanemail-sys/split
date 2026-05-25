@@ -11,6 +11,8 @@ function createTransporter() {
     host: config.SMTP_HOST,
     port: config.SMTP_PORT ?? 587,          // Bug #4 fix: default to 587
     auth: { user: config.SMTP_USER, pass: config.SMTP_PASS },
+    connectionTimeout: 10_000,              // fail fast — don't hang the HTTP request
+    socketTimeout: 10_000,
   });
 }
 
