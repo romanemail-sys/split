@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import passport from 'passport';
 import { Strategy as GoogleStrategy, Profile, VerifyCallback } from 'passport-google-oauth20';
 import { prisma } from '../lib/prisma';
@@ -36,6 +36,7 @@ if (config.GOOGLE_CLIENT_ID && config.GOOGLE_CLIENT_SECRET && config.GOOGLE_CALL
                   email,
                   googleId: profile.id,
                   avatarUrl: profile.photos?.[0]?.value,
+                  emailVerified: true,
                 },
               });
             }
@@ -48,29 +49,37 @@ if (config.GOOGLE_CLIENT_ID && config.GOOGLE_CLIENT_SECRET && config.GOOGLE_CALL
       }
     )
   );
+
+  // Routes only registered when Google credentials are present
+  router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
+
+  router.get(
+    '/google/callback',
+    passport.authenticate('google', { failureRedirect: `${config.CLIENT_URL}/#/login?error=oauth`, session: false }),
+    (req: Request, res: Response) => {
+      const user = req.user as { id: string };
+      const accessToken = generateAccessToken(user.id);
+      const refreshToken = generateRefreshToken(user.id);
+
+      const isProd = process.env.NODE_ENV === 'production';
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? 'none' : 'strict',
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      });
+
+      res.redirect(`${config.CLIENT_URL}/#/auth/callback?token=${accessToken}`);
+    }
+  );
+} else {
+  // Google credentials not configured — return a clear error instead of 500
+  router.get('/google', (_req: Request, res: Response) => {
+    res.status(503).json({ error: 'Google OAuth is not configured on this server.' });
+  });
+  router.get('/google/callback', (_req: Request, res: Response) => {
+    res.status(503).json({ error: 'Google OAuth is not configured on this server.' });
+  });
 }
-
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
-
-router.get(
-  '/google/callback',
-  passport.authenticate('google', { failureRedirect: `${config.CLIENT_URL}/login?error=oauth`, session: false }),
-  (req, res) => {
-    const user = req.user as { id: string };
-    const accessToken = generateAccessToken(user.id);
-    const refreshToken = generateRefreshToken(user.id);
-
-    const isProd = process.env.NODE_ENV === 'production';
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? 'none' : 'strict',
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
-
-    // HashRouter needs the hash prefix so the client-side route is matched
-    res.redirect(`${config.CLIENT_URL}/#/auth/callback?token=${accessToken}`);
-  }
-);
 
 export default router;
