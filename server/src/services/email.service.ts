@@ -3,15 +3,30 @@ import { prisma } from '../lib/prisma';
 import { computeGroupBalances } from './balance.service';
 import { config } from '../config';
 
-const transporter = nodemailer.createTransport({
-  host: config.SMTP_HOST,
-  port: config.SMTP_PORT,
-  auth: { user: config.SMTP_USER, pass: config.SMTP_PASS },
-});
+// ── Lazy transporter (Bug #2 fix) ────────────────────────────────────────────
+// Create the transporter on demand so module-load with missing SMTP config does
+// not silently create a ghost relay pointed at localhost:25.
+function createTransporter() {
+  return nodemailer.createTransport({
+    host: config.SMTP_HOST,
+    port: config.SMTP_PORT ?? 587,          // Bug #4 fix: default to 587
+    auth: { user: config.SMTP_USER, pass: config.SMTP_PASS },
+  });
+}
+
+// ── HTML safety (Bug #6 fix) ─────────────────────────────────────────────────
+function esc(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
 
 export async function sendVerificationEmail(to: string, token: string): Promise<void> {
   const url = `${config.CLIENT_URL}/verify-email?token=${token}`;
-  await transporter.sendMail({
+  await createTransporter().sendMail({
     from: config.EMAIL_FROM,
     to,
     subject: 'אמת את כתובת האימייל שלך',
@@ -21,7 +36,7 @@ export async function sendVerificationEmail(to: string, token: string): Promise<
 
 export async function sendPasswordResetEmail(to: string, token: string): Promise<void> {
   const url = `${config.CLIENT_URL}/reset-password?token=${token}`;
-  await transporter.sendMail({
+  await createTransporter().sendMail({
     from: config.EMAIL_FROM,
     to,
     subject: 'איפוס סיסמה',
@@ -44,8 +59,8 @@ function balanceReportHtml(
           const sign = item.type === 'owe' ? '−' : '+';
           return `
           <tr>
-            <td style="padding:8px 12px;font-size:14px;color:#374151;">${item.label}</td>
-            <td style="padding:8px 12px;font-size:14px;font-weight:600;color:${color};text-align:right;">${sign} ${item.amount.toFixed(2)} ${item.currency}</td>
+            <td style="padding:8px 12px;font-size:14px;color:#374151;">${esc(item.label)}</td>
+            <td style="padding:8px 12px;font-size:14px;font-weight:600;color:${color};text-align:right;">${sign} ${item.amount.toFixed(2)} ${esc(item.currency)}</td>
           </tr>`;
         })
         .join('');
@@ -53,7 +68,7 @@ function balanceReportHtml(
       return `
       <div style="margin-bottom:24px;">
         <a href="${appUrl}/#/groups/${g.groupId}" style="text-decoration:none;">
-          <h3 style="margin:0 0 8px;font-size:16px;font-weight:700;color:#1e293b;">${g.groupName}</h3>
+          <h3 style="margin:0 0 8px;font-size:16px;font-weight:700;color:#1e293b;">${esc(g.groupName)}</h3>
         </a>
         <table style="width:100%;border-collapse:collapse;background:#f8fafc;border-radius:8px;overflow:hidden;">
           <tbody>${rows}</tbody>
@@ -70,7 +85,7 @@ function balanceReportHtml(
     <!-- Header -->
     <div style="background:linear-gradient(135deg,#3b82f6,#6366f1);padding:28px 32px;">
       <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">💰 Split – Daily Summary</h1>
-      <p style="margin:6px 0 0;font-size:14px;color:#bfdbfe;">Good morning, ${userName}!</p>
+      <p style="margin:6px 0 0;font-size:14px;color:#bfdbfe;">Good morning, ${esc(userName)}!</p>
     </div>
     <!-- Body -->
     <div style="padding:28px 32px;">
@@ -91,12 +106,13 @@ function balanceReportHtml(
 
 /** Send daily balance summary to every user who has at least one non-zero balance. */
 export async function sendDailyBalanceReports(): Promise<{ sent: number; errors: number; skipped?: number; reason?: string }> {
-  if (!config.SMTP_HOST || !config.SMTP_USER) {
-    console.log('[cron] SMTP not configured — skipping daily report');
+  // Bug #1 fix: guard all four required SMTP fields, not just two
+  if (!config.SMTP_HOST || !config.SMTP_USER || !config.SMTP_PASS || !config.EMAIL_FROM) {
+    console.log('[cron] SMTP not fully configured — skipping daily report');
     return { sent: 0, errors: 0, reason: 'SMTP_NOT_CONFIGURED' };
   }
 
-  // Fetch all groups with their members
+  // Fetch all non-frozen groups with their members
   const groups = await prisma.group.findMany({
     where: { frozen: false },
     include: { members: { include: { user: { select: { id: true, name: true, email: true } } } } },
@@ -143,12 +159,15 @@ export async function sendDailyBalanceReports(): Promise<{ sent: number; errors:
     }
   }
 
-  const eligible = [...userBalances.values()].filter((u) => u.groups.length > 0);
+  const eligible = [...userBalances.values()];
 
   if (eligible.length === 0) {
     console.log('[cron] No users with open balances — nothing to send');
     return { sent: 0, errors: 0, skipped: 0, reason: 'NO_OPEN_BALANCES' };
   }
+
+  // Bug #2 fix: create transporter here (after SMTP guard), not at module load
+  const transporter = createTransporter();
 
   let sent = 0;
   let errors = 0;
