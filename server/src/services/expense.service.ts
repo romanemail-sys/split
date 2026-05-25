@@ -143,7 +143,12 @@ export async function createExpense(requesterId: string, data: CreateExpenseData
   const rate = await getExchangeRate(data.currency, baseCurrency);
   const amountBase = Math.round(data.amount * rate * 100) / 100;
 
-  const splits = calculateSplits(amountBase, data.splitType, data.splits);
+  // For EXACT splits the user enters amounts in the expense currency — convert to base currency
+  const splitsInput = data.splitType === 'EXACT'
+    ? data.splits.map((s) => ({ ...s, amount: Math.round((s.amount! * rate) * 100) / 100 }))
+    : data.splits;
+
+  const splits = calculateSplits(amountBase, data.splitType, splitsInput);
 
   const expense = await prisma.$transaction(async (tx) => {
     return tx.expense.create({
@@ -202,7 +207,10 @@ export async function updateExpense(expenseId: string, userId: string, data: Upd
     }
 
     const newSplitType = (data.splitType ?? existing.splitType) as SplitType;
-    const splits = data.splits ? calculateSplits(amountBase, newSplitType, data.splits) : null;
+    const splitsInput = data.splits && newSplitType === 'EXACT'
+      ? data.splits.map((s) => ({ ...s, amount: Math.round((s.amount! * rate) * 100) / 100 }))
+      : data.splits;
+    const splits = splitsInput ? calculateSplits(amountBase, newSplitType, splitsInput) : null;
 
     return tx.expense.update({
       where: { id: expenseId },
