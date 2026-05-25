@@ -163,9 +163,10 @@ interface Props {
   balances: GroupBalance[];
   members: GroupMember[];
   currency: string;
+  rate?: number;
 }
 
-export function DebtVisualization({ balances, members, currency }: Props) {
+export function DebtVisualization({ balances, members, currency, rate = 1 }: Props) {
   const { t } = useTranslation();
 
   const minimized = useMemo(() => minimizeTransactions(balances), [balances]);
@@ -193,15 +194,15 @@ export function DebtVisualization({ balances, members, currency }: Props) {
   const currentArrows: ArrowSpec[] = balances.map((b) => ({
     fromId: b.fromUserId,
     toId: b.toUserId,
-    amount: b.amount,
-    label: `${b.amount.toFixed(2)} ${b.currency}`,
+    amount: b.amount * rate,
+    label: `${(b.amount * rate).toFixed(2)} ${currency}`,
   }));
 
   const minArrows: ArrowSpec[] = minimized.map((t) => ({
     fromId: t.fromId,
     toId: t.toId,
-    amount: t.amount,
-    label: `${t.amount.toFixed(2)} ${currency}`,
+    amount: t.amount * rate,
+    label: `${(t.amount * rate).toFixed(2)} ${currency}`,
   }));
 
   const saved = balances.length - minimized.length;
@@ -275,7 +276,7 @@ export function DebtVisualization({ balances, members, currency }: Props) {
                     <span className="font-medium text-slate-900 truncate">{tx.toName}</span>
                   </div>
                   <span className="font-semibold text-income shrink-0">
-                    {tx.amount.toFixed(2)} {currency}
+                    {(tx.amount * rate).toFixed(2)} {currency}
                   </span>
                 </div>
               ))}

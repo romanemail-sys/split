@@ -299,6 +299,7 @@ export function GroupDetailPage() {
                 balances={balances}
                 members={group.members}
                 currency={displayCurrency}
+                rate={rate}
               />
             </>
           )}
