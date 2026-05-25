@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { CurrencySelect } from '../components/CurrencySelect';
 import { useCurrencyRate } from '../hooks/useCurrencyRate';
 import { DebtVisualization } from '../components/DebtVisualization';
+import { ShareGroupSection } from '../components/ShareGroupSection';
 
 type Tab = 'expenses' | 'members' | 'balances' | 'history';
 
@@ -345,6 +346,15 @@ export function GroupDetailPage() {
               </form>
             </DialogContent>
           </Dialog>
+
+          {/* Share / invite section — visible to all members */}
+          {(group as unknown as { inviteCode?: string }).inviteCode && (
+            <ShareGroupSection
+              groupId={id}
+              inviteCode={(group as unknown as { inviteCode: string }).inviteCode}
+              isAdmin={isAdmin ?? false}
+            />
+          )}
         </div>
       )}
 

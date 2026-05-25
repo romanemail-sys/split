@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useGroups, useCreateGroup } from '../hooks/useGroups';
 import { GroupCard } from '../components/GroupCard';
 import { Button } from '../components/ui/button';
@@ -10,6 +11,7 @@ import { CurrencySelect } from '../components/CurrencySelect';
 
 export function GroupsPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { data: groups, isLoading } = useGroups();
   const createGroup = useCreateGroup();
   const [open, setOpen] = useState(false);
@@ -36,7 +38,10 @@ export function GroupsPage() {
     <div className="max-w-4xl mx-auto p-6">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-slate-900">{t('groups.title')}</h1>
-        <Button onClick={() => setOpen(true)}>{t('groups.newGroup')}</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => navigate('/join')}>{t('groups.joinGroup')}</Button>
+          <Button onClick={() => setOpen(true)}>{t('groups.newGroup')}</Button>
+        </div>
       </div>
 
       {isLoading ? (

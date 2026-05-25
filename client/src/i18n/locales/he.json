@@ -23,7 +23,8 @@
     "failed": "יצירת הקבוצה נכשלה. אנא נסה שוב.",
     "loading": "טוען קבוצות…",
     "members_one": "{{count}} חבר",
-    "members_other": "{{count}} חברים"
+    "members_other": "{{count}} חברים",
+    "joinGroup": "הצטרף לקבוצה"
   },
   "groupDetail": {
     "notFound": "הקבוצה לא נמצאה.",
@@ -190,6 +191,34 @@
     "failedSetPassword": "עדכון הסיסמה נכשל.",
     "saving": "שומר…",
     "save": "שמור"
+  },
+  "share": {
+    "title": "הזמנה לקבוצה",
+    "inviteLink": "קישור הזמנה",
+    "inviteCode": "קוד הזמנה",
+    "groupId": "מזהה קבוצה",
+    "copy": "העתק",
+    "showQr": "הצג קוד QR",
+    "hideQr": "הסתר קוד QR",
+    "qrHint": "סרוק כדי להצטרף לקבוצה",
+    "resetCode": "אפס קוד",
+    "confirmReset": "ליצור קוד הזמנה חדש? הקישור הישן יפסיק לעבוד."
+  },
+  "join": {
+    "title": "הצטרף לקבוצה",
+    "subtitle": "הזן שם קבוצה, קוד הזמנה או מזהה קבוצה.",
+    "placeholder": "שם קבוצה, קוד הזמנה, או מזהה…",
+    "search": "חפש",
+    "searching": "מחפש…",
+    "notFound": "לא נמצאו קבוצות. בדוק את השם או הקוד ונסה שוב.",
+    "members": "חברים",
+    "join": "הצטרף",
+    "joining": "מצטרף…",
+    "alreadyMember": "אתה כבר חבר בקבוצה זו.",
+    "failed": "לא ניתן להצטרף לקבוצה. נסה שוב.",
+    "successTitle": "הצטרפת לקבוצה!",
+    "successMsg": "ברוך הבא ל«{{name}}».",
+    "goToGroups": "לקבוצות שלי"
   },
   "common": {
     "loading": "טוען…",

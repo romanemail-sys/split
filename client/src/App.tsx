@@ -15,6 +15,7 @@ import { ExpensesPage } from './pages/expenses/ExpensesPage';
 import { ExpenseFormPage } from './pages/expenses/ExpenseFormPage';
 import { ExpenseDetailPage } from './pages/expenses/ExpenseDetailPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
+import { JoinGroupPage } from './pages/JoinGroupPage';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { AdminPage } from './pages/admin/AdminPage';
 
@@ -53,6 +54,8 @@ export default function App() {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="groups" element={<GroupsPage />} />
           <Route path="groups/:id" element={<GroupDetailPage />} />
+          <Route path="join" element={<JoinGroupPage />} />
+          <Route path="join/:code" element={<JoinGroupPage />} />
           <Route path="expenses" element={<ExpensesPage />} />
           <Route path="expenses/new" element={<ExpenseFormPage />} />
           <Route path="expenses/:id" element={<ExpenseDetailPage />} />

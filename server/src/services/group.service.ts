@@ -28,6 +28,7 @@ function toGroupDTO(group: Group) {
     defaultCurrency: group.defaultCurrency,
     createdById: group.createdById,
     createdAt: group.createdAt.toISOString(),
+    inviteCode: (group as Group & { inviteCode?: string }).inviteCode ?? null,
   };
 }
 
@@ -217,4 +218,67 @@ export async function searchInviteCandidates(groupId: string, requesterId: strin
   });
 
   return users;
+}
+
+// ── Join / invite-link helpers ─────────────────────────────────────────────
+
+/** Public preview of a group used on the join page (no membership required). */
+export async function lookupGroup(query: string) {
+  const q = query.trim();
+  if (!q) throw new Error('EMPTY_QUERY');
+
+  // Try exact inviteCode match first, then exact ID, then name search
+  const byCode = await prisma.group.findUnique({ where: { inviteCode: q } });
+  if (byCode) {
+    const count = await prisma.groupMember.count({ where: { groupId: byCode.id } });
+    return [{ id: byCode.id, name: byCode.name, description: byCode.description, defaultCurrency: byCode.defaultCurrency, memberCount: count, inviteCode: byCode.inviteCode }];
+  }
+
+  const byId = await prisma.group.findUnique({ where: { id: q } });
+  if (byId) {
+    const count = await prisma.groupMember.count({ where: { groupId: byId.id } });
+    return [{ id: byId.id, name: byId.name, description: byId.description, defaultCurrency: byId.defaultCurrency, memberCount: count, inviteCode: byId.inviteCode }];
+  }
+
+  // Name search (case-insensitive contains)
+  const byName = await prisma.group.findMany({
+    where: { name: { contains: q, mode: 'insensitive' } },
+    take: 10,
+    orderBy: { name: 'asc' },
+  });
+  const results = await Promise.all(byName.map(async (g) => {
+    const count = await prisma.groupMember.count({ where: { groupId: g.id } });
+    return { id: g.id, name: g.name, description: g.description, defaultCurrency: g.defaultCurrency, memberCount: count, inviteCode: g.inviteCode };
+  }));
+  return results;
+}
+
+/** Any authenticated user can join a group via its invite code or ID. */
+export async function joinGroup(identifier: string, userId: string) {
+  // resolve by inviteCode, then by ID
+  let group = await prisma.group.findUnique({ where: { inviteCode: identifier } });
+  if (!group) group = await prisma.group.findUnique({ where: { id: identifier } });
+  if (!group) throw new Error('GROUP_NOT_FOUND');
+
+  const existing = await prisma.groupMember.findUnique({
+    where: { groupId_userId: { groupId: group.id, userId } },
+  });
+  if (existing) throw new Error('ALREADY_MEMBER');
+
+  const member = await prisma.groupMember.create({
+    data: { groupId: group.id, userId, role: 'MEMBER' },
+    ...memberInclude,
+  });
+  return { group: toGroupDTO(group), member: toMemberDTO(member as unknown as MemberWithUser) };
+}
+
+/** Admin: generate a fresh invite code (revokes the old link). */
+export async function resetInviteCode(groupId: string, requesterId: string) {
+  await requireAdmin(groupId, requesterId);
+  const { randomUUID } = await import('crypto');
+  const group = await prisma.group.update({
+    where: { id: groupId },
+    data: { inviteCode: randomUUID() },
+  });
+  return { inviteCode: group.inviteCode };
 }

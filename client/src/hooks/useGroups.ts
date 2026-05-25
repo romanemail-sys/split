@@ -83,6 +83,40 @@ export function useDuplicateGroup() {
   });
 }
 
+export function useLookupGroup(query: string) {
+  return useQuery<{ id: string; name: string; description: string | null; defaultCurrency: string; memberCount: number; inviteCode: string }[]>({
+    queryKey: ['groups', 'lookup', query],
+    queryFn: async () => {
+      const { data } = await api.get('/groups/lookup', { params: { q: query } });
+      return data;
+    },
+    enabled: query.trim().length >= 2,
+    staleTime: 10_000,
+  });
+}
+
+export function useJoinGroup() {
+  const qc = useQueryClient();
+  return useMutation<{ group: GroupWithMembers; member: GroupMember }, Error, { identifier: string }>({
+    mutationFn: async ({ identifier }) => {
+      const { data } = await api.post('/groups/join', { identifier });
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['groups'] }),
+  });
+}
+
+export function useResetInviteCode(groupId: string) {
+  const qc = useQueryClient();
+  return useMutation<{ inviteCode: string }, Error>({
+    mutationFn: async () => {
+      const { data } = await api.post(`/groups/${groupId}/reset-invite`);
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['groups', groupId] }),
+  });
+}
+
 export function useInviteCandidates(groupId: string, query: string) {
   return useQuery<{ id: string; name: string; email: string; avatarUrl: string | null }[]>({
     queryKey: ['groups', groupId, 'invite-candidates', query],

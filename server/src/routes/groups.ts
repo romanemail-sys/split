@@ -5,6 +5,7 @@ import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
 import {
   createGroup, getGroup, listGroups, updateGroup, deleteGroup,
   addMember, removeMember, listMembers, searchInviteCandidates, duplicateGroup,
+  lookupGroup, joinGroup, resetInviteCode,
 } from '../services/group.service';
 import { computeGroupBalances, settleMembers } from '../services/balance.service';
 import { getGroupActivity } from '../services/activity.service';
@@ -50,6 +51,31 @@ router.get('/', async (req: Request, res: Response) => {
   res.json(groups);
 });
 
+// ── Public join / lookup (auth required but no membership) ──────────────────
+router.get('/lookup', async (req: Request, res: Response) => {
+  try {
+    const q = typeof req.query.q === 'string' ? req.query.q : '';
+    const results = await lookupGroup(q);
+    res.json(results);
+  } catch (err) {
+    if (err instanceof Error && err.message === 'EMPTY_QUERY') {
+      res.status(400).json({ error: { code: 'EMPTY_QUERY', message: 'Query required' } });
+      return;
+    }
+    handleError(res, err);
+  }
+});
+
+const joinSchema = z.object({ identifier: z.string().min(1) });
+router.post('/join', validate(joinSchema), async (req: Request, res: Response) => {
+  try {
+    const result = await joinGroup(req.body.identifier, userId(req));
+    res.status(201).json(result);
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
 router.post('/', validate(createGroupSchema), async (req: Request, res: Response) => {
   try {
     const group = await createGroup(userId(req), req.body);
@@ -91,6 +117,15 @@ router.post('/:id/duplicate', validate(duplicateGroupSchema), async (req: Reques
   try {
     const group = await duplicateGroup(req.params.id, userId(req), req.body.name);
     res.status(201).json(group);
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+router.post('/:id/reset-invite', async (req: Request, res: Response) => {
+  try {
+    const result = await resetInviteCode(req.params.id, userId(req));
+    res.json(result);
   } catch (err) {
     handleError(res, err);
   }

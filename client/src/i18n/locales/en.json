@@ -23,7 +23,8 @@
     "failed": "Failed to create group. Please try again.",
     "loading": "Loading groups…",
     "members_one": "{{count}} member",
-    "members_other": "{{count}} members"
+    "members_other": "{{count}} members",
+    "joinGroup": "Join a Group"
   },
   "groupDetail": {
     "notFound": "Group not found.",
@@ -194,6 +195,34 @@
     "failedSetPassword": "Failed to update password.",
     "saving": "Saving…",
     "save": "Save"
+  },
+  "share": {
+    "title": "Invite to Group",
+    "inviteLink": "Invite Link",
+    "inviteCode": "Invite Code",
+    "groupId": "Group ID",
+    "copy": "Copy",
+    "showQr": "Show QR Code",
+    "hideQr": "Hide QR Code",
+    "qrHint": "Scan to join this group",
+    "resetCode": "Reset code",
+    "confirmReset": "Generate a new invite code? The old link will stop working."
+  },
+  "join": {
+    "title": "Join a Group",
+    "subtitle": "Enter a group name, invite code, or group ID.",
+    "placeholder": "Group name, invite code, or ID…",
+    "search": "Search",
+    "searching": "Searching…",
+    "notFound": "No groups found. Check the name or code and try again.",
+    "members": "members",
+    "join": "Join",
+    "joining": "Joining…",
+    "alreadyMember": "You are already a member of this group.",
+    "failed": "Could not join the group. Try again.",
+    "successTitle": "You joined the group!",
+    "successMsg": "Welcome to «{{name}}».",
+    "goToGroups": "Go to My Groups"
   },
   "common": {
     "loading": "Loading…",
