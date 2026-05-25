@@ -19,7 +19,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-56 bg-slate-800 border-e border-slate-700 flex flex-col h-screen sticky top-0 shrink-0">
+    <aside className="hidden md:flex w-56 bg-slate-800 border-e border-slate-700 flex-col h-screen sticky top-0 shrink-0">
       <div className="p-5 border-b border-slate-700">
         <span className="text-xl font-bold text-white">💸 Split</span>
       </div>
