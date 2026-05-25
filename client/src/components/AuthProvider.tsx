@@ -12,8 +12,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       ? `${import.meta.env.VITE_API_URL}/api/auth/refresh`
       : '/api/auth/refresh';
 
+    const timeout = setTimeout(() => setReady(true), 5000);
+
     axios
-      .post(refreshUrl, {}, { withCredentials: true })
+      .post(refreshUrl, {}, { withCredentials: true, timeout: 8000 })
       .then(async ({ data }) => {
         setAccessToken(data.accessToken);
         const { data: me } = await api.get('/auth/me');
@@ -22,7 +24,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .catch(() => {
         // No valid session — user will be sent to login by ProtectedRoute
       })
-      .finally(() => setReady(true));
+      .finally(() => {
+        clearTimeout(timeout);
+        setReady(true);
+      });
   }, [setAuth]);
 
   if (!ready) {
