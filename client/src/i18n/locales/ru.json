@@ -210,7 +210,9 @@
     "groupCreateFailed": "Не удалось создать группу.",
     "sendReport": "Отправить отчёт по балансам",
     "sending": "Отправка…",
-    "reportSent": "Отчёт отправлен {{sent}} пользователям ({{errors}} ошибок)."
+    "reportSent": "Отчёт отправлен {{sent}} пользователям ({{errors}} ошибок).",
+    "reportSmtpMissing": "⚠️ SMTP не настроен. Укажите SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS и EMAIL_FROM в переменных окружения Render для включения email.",
+    "reportNoBalances": "✓ Открытых балансов нет — нечего отправлять."
   },
   "settings": {
     "title": "Настройки",

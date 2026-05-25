@@ -210,7 +210,9 @@
     "groupCreateFailed": "יצירת הקבוצה נכשלה.",
     "sendReport": "שלח דו\"ח יתרות",
     "sending": "שולח…",
-    "reportSent": "הדו\"ח נשלח ל-{{sent}} משתמשים ({{errors}} שגיאות)."
+    "reportSent": "הדו\"ח נשלח ל-{{sent}} משתמשים ({{errors}} שגיאות).",
+    "reportSmtpMissing": "⚠️ SMTP אינו מוגדר. הגדר SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS ו-EMAIL_FROM במשתני הסביבה של Render כדי לאפשר שליחת אימייל.",
+    "reportNoBalances": "✓ לא נמצאו יתרות פתוחות — אין מה לשלוח."
   },
   "settings": {
     "title": "הגדרות",

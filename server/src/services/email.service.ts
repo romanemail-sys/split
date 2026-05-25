@@ -90,10 +90,10 @@ function balanceReportHtml(
 }
 
 /** Send daily balance summary to every user who has at least one non-zero balance. */
-export async function sendDailyBalanceReports(): Promise<{ sent: number; errors: number }> {
+export async function sendDailyBalanceReports(): Promise<{ sent: number; errors: number; skipped?: number; reason?: string }> {
   if (!config.SMTP_HOST || !config.SMTP_USER) {
     console.log('[cron] SMTP not configured — skipping daily report');
-    return { sent: 0, errors: 0 };
+    return { sent: 0, errors: 0, reason: 'SMTP_NOT_CONFIGURED' };
   }
 
   // Fetch all groups with their members
@@ -143,10 +143,16 @@ export async function sendDailyBalanceReports(): Promise<{ sent: number; errors:
     }
   }
 
+  const eligible = [...userBalances.values()].filter((u) => u.groups.length > 0);
+
+  if (eligible.length === 0) {
+    console.log('[cron] No users with open balances — nothing to send');
+    return { sent: 0, errors: 0, skipped: 0, reason: 'NO_OPEN_BALANCES' };
+  }
+
   let sent = 0;
   let errors = 0;
-  for (const [, userData] of userBalances) {
-    if (userData.groups.length === 0) continue;
+  for (const userData of eligible) {
     try {
       await transporter.sendMail({
         from: config.EMAIL_FROM,

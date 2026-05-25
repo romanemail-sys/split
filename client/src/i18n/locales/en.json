@@ -214,7 +214,9 @@
     "groupCreateFailed": "Failed to create group.",
     "sendReport": "Send Balance Report",
     "sending": "Sending…",
-    "reportSent": "Report sent to {{sent}} users ({{errors}} errors)."
+    "reportSent": "Report sent to {{sent}} users ({{errors}} errors).",
+    "reportSmtpMissing": "⚠️ SMTP is not configured. Set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS and EMAIL_FROM in Render environment variables to enable email.",
+    "reportNoBalances": "✓ No open balances found — nothing to send."
   },
   "settings": {
     "title": "Settings",

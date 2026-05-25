@@ -274,7 +274,7 @@ export function AdminPage() {
   const [showUserModal, setShowUserModal] = useState(false);
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [activeTab, setActiveTab] = useState<AdminTab>('users');
-  const [reportResult, setReportResult] = useState<{ sent: number; errors: number } | null>(null);
+  const [reportResult, setReportResult] = useState<{ sent: number; errors: number; reason?: string } | null>(null);
 
   async function handleSendReport() {
     setReportResult(null);
@@ -312,8 +312,20 @@ export function AdminPage() {
       </div>
 
       {reportResult && (
-        <div className={`rounded-lg px-4 py-3 text-sm ${reportResult.errors > 0 ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'}`}>
-          {t('admin.reportSent', { sent: reportResult.sent, errors: reportResult.errors })}
+        <div className={`rounded-lg px-4 py-3 text-sm ${
+          reportResult.reason === 'SMTP_NOT_CONFIGURED'
+            ? 'bg-amber-50 text-amber-800 border border-amber-200'
+            : reportResult.errors > 0
+              ? 'bg-red-50 text-red-700 border border-red-200'
+              : reportResult.reason === 'NO_OPEN_BALANCES'
+                ? 'bg-slate-50 text-slate-600 border border-slate-200'
+                : 'bg-green-50 text-green-700 border border-green-200'
+        }`}>
+          {reportResult.reason === 'SMTP_NOT_CONFIGURED'
+            ? t('admin.reportSmtpMissing')
+            : reportResult.reason === 'NO_OPEN_BALANCES'
+              ? t('admin.reportNoBalances')
+              : t('admin.reportSent', { sent: reportResult.sent, errors: reportResult.errors })}
         </div>
       )}
 

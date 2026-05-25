@@ -161,8 +161,9 @@ router.post('/send-balance-report', async (_req: Request, res: Response) => {
   try {
     const result = await sendDailyBalanceReports();
     res.json(result);
-  } catch {
-    res.status(500).json({ error: { code: 'INTERNAL', message: 'Server error' } });
+  } catch (err) {
+    console.error('[admin] send-balance-report error:', err);
+    res.status(500).json({ error: { code: 'INTERNAL', message: String(err) } });
   }
 });
 

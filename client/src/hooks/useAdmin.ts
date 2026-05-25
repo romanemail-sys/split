@@ -95,7 +95,7 @@ export function useAdminDeleteGroup() {
 }
 
 export function useSendBalanceReport() {
-  return useMutation<{ sent: number; errors: number }, Error, void>({
+  return useMutation<{ sent: number; errors: number; reason?: string }, Error, void>({
     mutationFn: () => api.post('/admin/send-balance-report').then((r) => r.data),
   });
 }
