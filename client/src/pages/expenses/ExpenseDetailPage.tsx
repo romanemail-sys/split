@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useExpense, useDeleteExpense, useSettleSplit } from '../../hooks/useExpenses';
@@ -5,6 +6,7 @@ import { useAuthStore } from '../../stores/auth.store';
 import { useGroup } from '../../hooks/useGroups';
 import { Button } from '../../components/ui/button';
 import { useCurrencyRate } from '../../hooks/useCurrencyRate';
+import { CurrencySelect } from '../../components/CurrencySelect';
 
 export function ExpenseDetailPage() {
   const { t } = useTranslation();
@@ -15,19 +17,29 @@ export function ExpenseDetailPage() {
   const deleteExpense = useDeleteExpense();
   const settleSplit = useSettleSplit(id, expense?.groupId);
   const currentUserId = useAuthStore((s) => s.user?.id);
+  const [viewCurrency, setViewCurrency] = useState('');
 
-  // Must be called unconditionally — before any early returns
+  // Exchange rate for display conversion (baseCurrency → viewCurrency)
   const { data: rateData } = useCurrencyRate(
     expense?.currency ?? '',
     expense?.baseCurrency ?? ''
+  );
+  const { data: viewRateData } = useCurrencyRate(
+    expense?.baseCurrency ?? '',
+    viewCurrency
   );
 
   if (isLoading) return <div className="p-6 text-slate-400">{t('expense.loading')}</div>;
   if (!expense) return <div className="p-6 text-red-600">{t('expense.notFound')}</div>;
 
+  if (!viewCurrency && expense.baseCurrency) setViewCurrency(expense.baseCurrency);
+
   const isAdmin = group?.members.find((m) => m.userId === currentUserId)?.role === 'ADMIN';
   const canEdit = expense.paidById === currentUserId || isAdmin;
   const currencyMismatch = expense.currency !== expense.baseCurrency;
+  const viewRate = viewRateData?.rate ?? 1;
+  const displayCurrency = viewCurrency || expense.baseCurrency;
+  const showConversion = viewCurrency && viewCurrency !== expense.baseCurrency;
 
   async function handleDelete() {
     if (!confirm(t('expense.confirmDelete'))) return;
@@ -93,7 +105,12 @@ export function ExpenseDetailPage() {
       )}
 
       <div className="mt-6">
-        <h2 className="font-semibold mb-3 text-slate-900">{t('expense.splits')}</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold text-slate-900">{t('expense.splits')}</h2>
+          <div className="w-36">
+            <CurrencySelect value={viewCurrency} onChange={setViewCurrency} />
+          </div>
+        </div>
         <div className="space-y-2">
           {expense.splits.map((split) => {
             const canSettle = !split.isSettled && (
@@ -101,6 +118,7 @@ export function ExpenseDetailPage() {
               expense.paidById === currentUserId ||
               isAdmin
             );
+            const convertedAmount = split.amount * viewRate;
             return (
               <div key={split.id} className="flex justify-between items-center p-3 rounded-lg border border-slate-200">
                 <div className="flex items-center gap-2">
@@ -110,9 +128,14 @@ export function ExpenseDetailPage() {
                   )}
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className={`text-sm font-semibold ${split.isSettled ? 'text-income' : 'text-expense'}`}>
-                    {split.amount.toFixed(2)} {expense.baseCurrency}
-                  </span>
+                  <div className="text-end">
+                    <span className={`text-sm font-semibold ${split.isSettled ? 'text-income' : 'text-expense'}`}>
+                      {convertedAmount.toFixed(2)} {displayCurrency}
+                    </span>
+                    {showConversion && (
+                      <p className="text-xs text-slate-400">{split.amount.toFixed(2)} {expense.baseCurrency}</p>
+                    )}
+                  </div>
                   {canSettle && (
                     <Button
                       size="sm"
